@@ -1,0 +1,13 @@
+
+for working with 'less'
+- instll nodejs (http://nodejs.org/)
+- install npm (http://npmjs.org/)
+- install less (http://lesscss.org/)
+- add lessc to system PATH, like 
+  export PATH=$PATH:"/home/tie/node_modules/less/bin/"
+
+for working with jinja3
+- install jinja2
+
+add django_next to python path like: 
+export PYTHONPATH=$PYTHONPATH:"/home/tie/repos/my/django-next"
