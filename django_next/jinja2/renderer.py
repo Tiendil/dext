@@ -53,7 +53,7 @@ class Jinja2Renderer(object):
         self.env.globals.update(global_functions)
         self.env.filters.update(filter_functions)
 
-    def __call__(self, template_name, content={}, request=None):
+    def __call__(self, template_name, content={}):
 
         template = self.env.get_template(template_name)
 

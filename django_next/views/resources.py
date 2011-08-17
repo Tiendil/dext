@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import json
+from ..utils import s11n
 import functools
 
 from django.http import Http404, HttpResponse
@@ -130,7 +130,7 @@ class BaseResource(object):
         return render.template(template_name, context, self.request)
 
     def json(self, **kwargs):
-        response = HttpResponse(json.dumps(kwargs), mimetype='application/json')
+        response = HttpResponse(s11n.to_json(kwargs), mimetype='application/json')
         return response
 
     def css(self, text):
