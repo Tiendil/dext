@@ -44,16 +44,15 @@ class DispatchInfo(object):
             return False
 
         for arg in self.args:
+
             if isinstance(arg, basestring) or not hasattr(arg, '__iter__'):
+                key = arg
                 if arg not in request.GET: return False
 
             elif len(arg) == 2:
                 key, value = arg
                 if key not in request.GET: return False
                 if value != request.GET[key]: return False
-
-            elif len(arg) == 3:
-                key, check_type, value = arg
 
         return True
 
