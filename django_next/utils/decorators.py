@@ -30,7 +30,7 @@ def staff_required(permissions=[]):
                 if resource.request.user.is_active and resource.request.user.is_staff:
                     return func(resource, *argv, **kwargs)
                 else: 
-                    if resource.request.is_ajax() or resource.resource.metho.lower() == 'post':
+                    if resource.request.is_ajax() or resource.request.method.lower() == 'post':
                         return resource.json(status='error',
                                              error=u'У Вас нет прав для проведения данной операции')
                     return resource.redirect('accounts:login')
