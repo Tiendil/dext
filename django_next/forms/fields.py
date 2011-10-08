@@ -69,3 +69,14 @@ class PasswordField(RegexField):
                                             max_length=self.MAX_LENGTH,
                                             widget=forms.PasswordInput,
                                             *args, **kwargs)
+
+
+class HiddenCharField(CharField): 
+
+    def __init__(self, *args, **kwargs):
+        super(HiddenCharField, self).__init__(widget=forms.HiddenInput, *args, **kwargs)
+
+class HiddenIntegerField(IntegerField): 
+
+    def __init__(self, *args, **kwargs):
+        super(HiddenIntegerField, self).__init__(widget=forms.HiddenInput, *args, **kwargs)

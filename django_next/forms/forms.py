@@ -39,6 +39,10 @@ class CleanedDataAccessor(object):
             return self.form.cleaned_data[name]
         raise FormsException('can not get cleaned data - wrong field name "%s"' % name)
 
+    @property
+    def data(self):
+        return self.form.cleaned_data
+
 
 class Form(forms.Form):
 
