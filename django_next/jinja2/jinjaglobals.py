@@ -19,3 +19,7 @@ def url(*args, **kwargs):
 def endl2br(value):
     return jinja2.Markup(value.replace('\n\r', '</br>').replace('\n', r'</br>'))
 
+@jinjafilter
+def percents(value):
+    return '%d%%' % int((round(value, 2) * 100))
+

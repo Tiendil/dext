@@ -8,7 +8,7 @@ from django.http import Http404
 class FakeContextManager(object):
 
     def __enter__(self): return None
-    def __exit__(self): return None
+    def __exit__(self, type, value, traceback): return None
 
 def nested_commit_on_success(func=None):
 
@@ -16,7 +16,7 @@ def nested_commit_on_success(func=None):
 
     if func is None:
         if transaction.is_managed():
-            return FakeContextManager
+            return FakeContextManager()
         else:
             return commit_on_success
 
