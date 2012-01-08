@@ -63,5 +63,27 @@ def debug_required(func):
     return wrapper
 
     
+def retry_on_exception(*exceptions):
+    
+    @functools.wraps(retry_on_exception)
+    def decorator(func):
 
+        @functools.wraps(func)
+        def wrapper(*argv, **kwargs):
+            try:
+                return func(*argv, **kwargs)
+            except Exception, e:
+                found = False
+                for exception in exceptions:
+                    if isinstance(e, exception):
+                        found = True
 
+                if not found:
+                    raise
+
+                return wrapper(*argv, **kwargs)
+
+        return wrapper
+
+    return decorator
+                
