@@ -26,6 +26,9 @@ def handler(*path, **params):
 
         expected_args, expected_vargs, expected_kwargs, expected_defaults = inspect.getargspec(func)
 
+        if expected_defaults is not None:
+            expected_defaults = dict(zip(expected_args[-len(expected_defaults):], expected_defaults))
+
         info = {'methods': methods,
                 'args': args,
                 'path': path,

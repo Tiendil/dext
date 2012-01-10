@@ -22,8 +22,8 @@ def create_handler_view(resource_class, handler):
                 if arg in request.GET:
                     arguments[arg] = request.GET.get(arg)
                 elif defaults and arg not in defaults:
-                    raise ResourceException('can not dispatch url for handler "%s" - value for argument "%s" in view "%s" does not defined' % 
-                                            (handler.path[-1], arg, method))
+                    raise ResourceException('can not dispatch url for handler "%s:%s" - value for argument "%s" in view "%s" does not defined' % 
+                                            (resource.__class__.__name__, handler.path[-1], arg, method))
 
         if method:
             return method(**arguments)
