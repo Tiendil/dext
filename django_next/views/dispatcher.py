@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import inspect
 
 from django.conf.urls.defaults import patterns, url
 
@@ -12,7 +11,10 @@ def create_handler_view(resource_class, handler):
         method_name = handler.dispatch(request)
         method = getattr(resource, method_name, None)
 
-        args, vargs, kwargs, defaults = inspect.getargspec(method)
+        info = method._handler_info
+
+        args = info['expected']['args']
+        defaults = info['expected']['defaults']
 
         arguments = {}
         for arg in args:

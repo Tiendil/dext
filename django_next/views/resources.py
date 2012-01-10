@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
-from ..utils import s11n
+import inspect
 import functools
 
 from django.http import Http404, HttpResponse
 from django.middleware import csrf
 from django.shortcuts import redirect
 
+from ..utils import s11n
 from ..jinja2 import render
 
 class ResourceException(Exception): pass
@@ -23,9 +24,13 @@ def handler(*path, **params):
         else:
             methods = [method]
 
+        expected_args, expected_vargs, expected_kwargs, expected_defaults = inspect.getargspec(func)
+
         info = {'methods': methods,
                 'args': args,
-                'path': path}
+                'path': path,
+                'expected': { 'args': expected_args,
+                              'defaults': expected_defaults} }
 
         func._handler_info = info
         return func
@@ -126,7 +131,9 @@ class BaseResource(object):
         return cls._handlers
 
     def template(self, template_name, context):
-        return render.template(template_name, context, self.request)
+        full_context = {'resource': self}
+        full_context.update(context)
+        return render.template(template_name, full_context, self.request)
 
     def json(self, **kwargs):
         response = HttpResponse(s11n.to_json(kwargs), mimetype='application/json')
