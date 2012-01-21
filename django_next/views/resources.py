@@ -133,7 +133,7 @@ class BaseResource(object):
         cls._handlers = handlers.values()
         return cls._handlers
 
-    def template(self, template_name, context):
+    def template(self, template_name, context={}):
         full_context = {'resource': self}
         full_context.update(context)
         return render.template(template_name, full_context, self.request)

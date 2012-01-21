@@ -6,11 +6,11 @@ from . import pgf_widgets
 class FormsException(Exception): pass 
 
 def errors_container(self): 
-    return jinja2.Markup('<div class="pgf-form-field-marker-%s pgf-error-container"></div>' % self.name)
+    return jinja2.Markup('<div class="pgf-form-field-marker-%s pgf-error-container error-container"></div>' % self.name)
 
 def widget(self):
     html = jinja2.Markup(self.label_tag()) + jinja2.Markup(self) + self.errors_container
-    template = jinja2.Markup(u'<div data-widget-name="%(name)s" data-widget-type="%(type)s" class="pgf-widget">%(content)s</div>')
+    template = jinja2.Markup(u'<div data-widget-name="%(name)s" data-widget-type="%(type)s" class="pgf-widget widget">%(content)s</div>')
     html =  template % {'content': html,
                         'name': self.name,
                         'type': self.field.pgf['type'] if 'type' in self.field.pgf else ''}
@@ -54,7 +54,7 @@ class Form(forms.Form):
 
     @property
     def errors_container(self): 
-        return jinja2.Markup('<div class="pgf-form-marker pgf-error-container"></div>')
+        return jinja2.Markup('<div class="pgf-form-marker pgf-error-container error-container"></div>')
 
 
     @property

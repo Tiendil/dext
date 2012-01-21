@@ -11,6 +11,5 @@ def template_renderer(template_name, context={}):
         return render.template(template_name, context, request)
 
     return view
-
-
+        
 
