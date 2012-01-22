@@ -43,9 +43,14 @@ class Command(BaseCommand):
 
                 print 'process file: %s' % src_file
 
-                if src_file[-5:] != '.less':
-                    shutil.copy(src_file, dest_file)
+                if not src_file.endswith('.less'):
+                    if src_file.endswith('.css'):
+                        shutil.copy(src_file, dest_file)
+                        print '...copy'
+                    print '...skeep'
                     continue
+
+                print '...generate'
 
                 dest_file = dest_file[:-5] + '.css'
 
