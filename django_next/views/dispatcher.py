@@ -15,7 +15,7 @@ def create_handler_view(resource_class, handler):
 
 
     def handler_view(request, *args, **kwargs):     
-        print result_method_name
+
         resource = resource_class(request, *args, **kwargs)
         if result_method_name is None:
             method_name = handler.dispatch(request)
