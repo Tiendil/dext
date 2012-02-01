@@ -42,6 +42,9 @@ def pgf(cls):
 @pgf
 class CharField(forms.CharField): pass
 
+class TextField(CharField):
+    widget = forms.Textarea
+
 @strip_on_clean
 @pgf
 class EmailField(forms.EmailField): pass

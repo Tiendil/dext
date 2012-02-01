@@ -53,6 +53,6 @@ def resource_patterns(resource_class):
     for handler in resource_class.get_handlers():
         patterns_args.append( url(handler.url_regexp, 
                                   create_handler_view(resource_class, handler),
-                                  name=handler.path[-1]) )
+                                  name=handler.name) )
 
     return patterns(*patterns_args)

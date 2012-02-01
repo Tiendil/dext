@@ -15,6 +15,7 @@ def handler(*path, **params):
 
     method = params.get('method', ['post', 'get'])
     args = params.get('args', [])
+    name = params.get('name', path[-1])
 
     @functools.wraps(handler)
     def decorator(func):
@@ -32,6 +33,7 @@ def handler(*path, **params):
         info = {'methods': methods,
                 'args': args,
                 'path': path,
+                'name': name,
                 'expected': { 'args': expected_args,
                               'defaults': expected_defaults} }
 
@@ -77,6 +79,7 @@ class HandlerInfo(object):
         self.dispatch_list = [dispatch_info]
 
         self.path = info['path']
+        self.name = info['name']
 
 
     def update(self, handler_info):
@@ -93,7 +96,7 @@ class HandlerInfo(object):
             if len(part) == 0:
                 regex = '%s/' % regex
             elif part[0] == '#':
-                regex = '%s/(?P<%s>.*)' % (regex, part[1:])
+                regex = '%s/(?P<%s>[^\/]*)' % (regex, part[1:])
             else:
                 regex = '%s/%s' % (regex, part)
         return '^%s$' % regex[1:]

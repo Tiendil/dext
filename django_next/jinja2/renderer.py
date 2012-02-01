@@ -6,6 +6,7 @@ from django.conf import settings as app_settings
 from django.http import HttpResponse
 from django.template import RequestContext
 
+from .conf import settings as jinja2_settings
 from . import jinjaglobals
 
 def get_jinjaglobals(module):
@@ -31,8 +32,7 @@ class Jinja2Renderer(object):
     def __init__(self, settings):
 
         #form templates loaders
-
-        filesystem_loader = jinja2.FileSystemLoader(settings.TEMPLATE_DIRS)
+        filesystem_loader = jinja2.FileSystemLoader(jinja2_settings.TEMPLATE_DIRS)
 
         apps_loader_params = {}
 
