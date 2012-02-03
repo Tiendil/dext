@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
+import time
 import jinja2
 import urllib
-
+ 
 from django.core.urlresolvers import reverse
 
 from .decorators import jinjafilter, jinjaglobal
@@ -22,4 +23,8 @@ def endl2br(value):
 @jinjafilter
 def percents(value):
     return '%d%%' % int((round(value, 2) * 100))
+
+@jinjafilter
+def timestamp(value):
+    return time.mktime(value.timetuple())
 
