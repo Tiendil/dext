@@ -9,5 +9,5 @@ for working with 'less'
 for working with jinja3
 - install jinja2
 
-add django_next to python path like: 
-export PYTHONPATH=$PYTHONPATH:"/home/tie/repos/my/django-next"
+add dext to python path like: 
+export PYTHONPATH=$PYTHONPATH:"/home/tie/repos/my/dext"

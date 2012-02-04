@@ -2,7 +2,7 @@
 import jinja2
 
 
-from django.conf import settings as app_settings
+from django.conf import settings as project_settings
 from django.http import HttpResponse
 from django.template import RequestContext
 
@@ -65,7 +65,7 @@ class Jinja2Renderer(object):
         jinja_context = context
 
         context['request'] = request
-        context['settings'] = app_settings
+        context['settings'] = project_settings
 
         if request:
             jinja_context = {}
@@ -78,6 +78,6 @@ class Jinja2Renderer(object):
         response = HttpResponse(self(template_name, jinja_context), mimetype=mimetype)
         return response
 
-render = Jinja2Renderer(app_settings)
+render = Jinja2Renderer(project_settings)
 global_functions, filter_functions = get_jinjaglobals(jinjaglobals)
 render.update_globals(global_functions, filter_functions)

@@ -2,12 +2,12 @@
 import setuptools
 
 setuptools.setup(
-    name = 'DjangoNext',
+    name = 'Dext',
     version = '0.1.0',
     author = 'Aleksey Yeletsky',
     author_email = 'a.eletsky@gmail.com',
     packages = setuptools.find_packages(),
-    url = 'https://github.com/Tiendil/django-next',
+    url = 'https://github.com/Tiendil/dext',
     license = 'LICENSE',
     description = "minor extentions for django",
     long_description = open('README').read(),
