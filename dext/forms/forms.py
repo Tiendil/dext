@@ -8,10 +8,16 @@ class FormsException(Exception): pass
 def errors_container(self): 
     return jinja2.Markup('<div class="pgf-form-field-marker-%s pgf-error-container error-container"></div>' % self.name)
 
+
+def html(self):
+
+    if hasattr(self.field, 'html'):
+        return self.field.html(self)
+    return jinja2.Markup(self.label_tag()) + jinja2.Markup(self) + self.errors_container
+
 def widget(self):
-    html = jinja2.Markup(self.label_tag()) + jinja2.Markup(self) + self.errors_container
     template = jinja2.Markup(u'<div data-widget-name="%(name)s" data-widget-type="%(type)s" class="pgf-widget widget">%(content)s</div>')
-    html =  template % {'content': html,
+    html =  template % {'content': self.html,
                         'name': self.name,
                         'type': self.field.pgf['type'] if 'type' in self.field.pgf else ''}
     html = jinja2.Markup(html)
@@ -24,6 +30,7 @@ def pgf_widget(self):
         raise FormsException(unicode(e))
     return jinja2.Markup(html)
 
+forms.forms.BoundField.html = property(html)
 forms.forms.BoundField.errors_container = property(errors_container)
 forms.forms.BoundField.widget = property(widget)
 forms.forms.BoundField.pgf_widget = property(pgf_widget)
