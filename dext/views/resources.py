@@ -139,6 +139,15 @@ class BaseResource(object):
     def string(self, string):
         return HttpResponse(string, mimetype='text/html')
 
+    def atom(self, string):
+        return HttpResponse(string, mimetype='application/atom+xml')
+
+    def rss(self, string):
+        return HttpResponse(string, mimetype='application/rss+xml')
+
+    def rdf(self, string):
+        return HttpResponse(string, mimetype='application/rdf+xml')
+
     def template(self, template_name, context={}):
         full_context = {'resource': self}
         full_context.update(context)
