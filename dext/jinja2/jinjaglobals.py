@@ -2,7 +2,7 @@
 import time
 import jinja2
 import urllib
- 
+
 from django.core.urlresolvers import reverse
 
 from .decorators import jinjafilter, jinjaglobal
@@ -14,6 +14,10 @@ def url(*args, **kwargs):
         query = urllib.urlencode(kwargs)
         base_url = '%s?%s' % (base_url, query)
     return base_url
+
+@jinjaglobal
+def jmap(func, iterable):
+    return map(func, iterable)
 
 
 @jinjafilter
@@ -27,4 +31,3 @@ def percents(value):
 @jinjafilter
 def timestamp(value):
     return time.mktime(value.timetuple())
-
