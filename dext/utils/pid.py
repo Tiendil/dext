@@ -1,5 +1,6 @@
 # coding: utf-8
 import os
+import signal
 import functools
 
 from dext.utils.conf import utils_settings
@@ -68,3 +69,9 @@ def protector(uuid, directory=utils_settings.PID_DIRECTORY, directory_mode=utils
         return wrapper
 
     return decorator
+
+def force_kill(uuid, directory=utils_settings.PID_DIRECTORY):
+    process_id = get(uuid, directory)
+    if process_id is not None:
+        os.kill(process_id, signal.SIGKILL)
+        free(uuid, directory)
