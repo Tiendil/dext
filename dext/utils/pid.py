@@ -1,8 +1,10 @@
 # coding: utf-8
 import os
-from contextlib import contextmanager
+import functools
 
 from dext.utils.conf import utils_settings
+
+# TODO: make an atomic operations (see, lockfile package)
 
 def capture(uuid, directory=utils_settings.PID_DIRECTORY, directory_mode=utils_settings.PID_DIRECTORY_MODE):
 
@@ -14,8 +16,10 @@ def capture(uuid, directory=utils_settings.PID_DIRECTORY, directory_mode=utils_s
     if os.path.exists(pid_file):
         return False
 
+    pid = os.getpid()
+
     with open(pid_file, 'w') as f:
-        f.write('%d\n' % os.getpid())
+        f.write('%d\n' % pid)
 
     return True
 
@@ -29,13 +33,38 @@ def free(uuid, directory=utils_settings.PID_DIRECTORY):
     pid_file = os.path.join(directory, uuid + '.pid')
     os.remove(pid_file)
 
+def get(uuid, directory=utils_settings.PID_DIRECTORY):
+    if not check(uuid, directory):
+        return None
 
-@contextmanager
-def wrap(uuid, directory=utils_settings.PID_DIRECTORY, directory_mode=utils_settings.PID_DIRECTORY_MODE):
-    if not capture(uuid, directory, directory_mode):
-        print 'process has been already running'
-        yield
-        return
+    pid_file = os.path.join(directory, uuid + '.pid')
 
-    yield
-    free(uuid, directory)
+    pid = None
+
+    try:
+        with open(pid_file, 'r') as f:
+            pid = int(f.read())
+    except:
+        pass
+
+    return pid
+
+
+def protector(uuid, directory=utils_settings.PID_DIRECTORY, directory_mode=utils_settings.PID_DIRECTORY_MODE):
+
+    def decorator(func):
+
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            if not capture(uuid, directory, directory_mode):
+                print 'process has been already running'
+                return
+
+            try:
+                func(*args, **kwargs)
+            finally:
+                free(uuid, directory)
+
+        return wrapper
+
+    return decorator
