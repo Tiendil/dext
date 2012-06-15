@@ -7,7 +7,7 @@ def strip_on_clean(cls):
 
     old_init = cls.__init__
     old_clean = cls.clean
-    
+
     @functools.wraps(old_init)
     def new_init(self, strip=' ', *args, **kwargs):
         if not strip:
@@ -26,7 +26,7 @@ def strip_on_clean(cls):
 
 def pgf(cls):
     old_init = cls.__init__
-    
+
     @functools.wraps(old_init)
     def new_init(self, pgf={}, *args, **kwargs):
         self.pgf = pgf
@@ -60,26 +60,26 @@ class IntegerField(forms.IntegerField): pass
 @pgf
 class ChoiceField(forms.ChoiceField): pass
 
-class PasswordField(RegexField): 
+class PasswordField(RegexField):
 
     REGEX = r'[a-zA-Z0-9!@#$%^&*()-_=+]+'
     MIN_LENGTH = 6
     MAX_LENGTH = 50
 
     def __init__(self, *args, **kwargs):
-        super(PasswordField, self).__init__(regex=self.REGEX, 
-                                            min_length=self.MIN_LENGTH, 
+        super(PasswordField, self).__init__(regex=self.REGEX,
+                                            min_length=self.MIN_LENGTH,
                                             max_length=self.MAX_LENGTH,
                                             widget=forms.PasswordInput,
                                             *args, **kwargs)
 
 
-class HiddenCharField(CharField): 
+class HiddenCharField(CharField):
 
     def __init__(self, *args, **kwargs):
         super(HiddenCharField, self).__init__(widget=forms.HiddenInput, *args, **kwargs)
 
-class HiddenIntegerField(IntegerField): 
+class HiddenIntegerField(IntegerField):
 
     def __init__(self, *args, **kwargs):
         super(HiddenIntegerField, self).__init__(widget=forms.HiddenInput, *args, **kwargs)

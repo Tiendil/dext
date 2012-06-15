@@ -39,7 +39,7 @@ class Jinja2Renderer(object):
         # use last application_name part as unique name, since django expect it's uniqueness
         for application_name in settings.INSTALLED_APPS:
             apps_loader_params[application_name.split('.')[-1]] = jinja2.PackageLoader(application_name)
-            
+
         apps_loader = jinja2.PrefixLoader(apps_loader_params)
 
         loader = jinja2.ChoiceLoader([filesystem_loader, apps_loader])
@@ -61,7 +61,7 @@ class Jinja2Renderer(object):
 
         return text
 
-    def template(self, template_name, context={}, request=None, mimetype='text/html'):
+    def template(self, template_name, context={}, request=None):
         jinja_context = context
 
         context['request'] = request
@@ -75,8 +75,8 @@ class Jinja2Renderer(object):
             for d in request_context:
                 jinja_context.update(d)
 
-        response = HttpResponse(self(template_name, jinja_context), mimetype=mimetype)
-        return response
+        return self(template_name, jinja_context)
+
 
 render = Jinja2Renderer(project_settings)
 global_functions, filter_functions = get_jinjaglobals(jinjaglobals)

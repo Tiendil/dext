@@ -16,6 +16,7 @@ def handler(*path, **params):
     method = params.get('method', ['post', 'get'])
     args = params.get('args', [])
     name = params.get('name', path[-1])
+    name = name.replace('-', '_')
 
     @functools.wraps(handler)
     def decorator(func):
@@ -39,7 +40,7 @@ def handler(*path, **params):
 
         func._handler_info = info
         return func
-        
+
     return decorator
 
 class DispatchInfo(object):
@@ -114,7 +115,7 @@ class BaseResource(object):
     def __init__(self, request, *args, **kwargs):
         self.request = request
         self.csrf = csrf.get_token(request)
-    
+
     @classmethod
     def get_handlers(cls):
 
@@ -148,10 +149,11 @@ class BaseResource(object):
     def rdf(self, string):
         return HttpResponse(string, mimetype='application/rdf+xml')
 
-    def template(self, template_name, context={}):
+    def template(self, template_name, context={}, mimetype='text/html'):
         full_context = {'resource': self}
         full_context.update(context)
-        return render.template(template_name, full_context, self.request)
+        return HttpResponse(render.template(template_name, full_context, self.request), mimetype=mimetype)
+
 
     def json(self, **kwargs):
         response = HttpResponse(s11n.to_json(kwargs), mimetype='application/json')

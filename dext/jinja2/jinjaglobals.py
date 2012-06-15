@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import datetime
 import time
 import jinja2
 import urllib
@@ -31,3 +32,7 @@ def percents(value):
 @jinjafilter
 def timestamp(value):
     return time.mktime(value.timetuple())
+
+@jinjaglobal
+def now():
+    return datetime.datetime.now()
