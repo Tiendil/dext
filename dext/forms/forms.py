@@ -3,10 +3,10 @@ import jinja2
 from django import forms
 from . import pgf_widgets
 
-class FormsException(Exception): pass 
+class FormsException(Exception): pass
 
-def errors_container(self): 
-    return jinja2.Markup('<div class="pgf-form-field-marker-%s pgf-error-container error-container"></div>' % self.name)
+def errors_container(self):
+    return jinja2.Markup('<div class="pgf-form-field-marker-%s pgf-error-container alert alert-error pgf-hidden"></div>' % self.name)
 
 
 def html(self):
@@ -16,7 +16,7 @@ def html(self):
     return jinja2.Markup(self.label_tag()) + jinja2.Markup(self) + self.errors_container
 
 def widget(self):
-    template = jinja2.Markup(u'<div data-widget-name="%(name)s" data-widget-type="%(type)s" class="pgf-widget widget">%(content)s</div>')
+    template = jinja2.Markup(u'<div data-widget-name="%(name)s" data-widget-type="%(type)s" class="pgf-widget control-group">%(content)s</div>')
     html =  template % {'content': self.html,
                         'name': self.name,
                         'type': self.field.pgf['type'] if 'type' in self.field.pgf else ''}
@@ -55,13 +55,13 @@ class Form(forms.Form):
 
     def __iter__(self):
         return super(Form, self).__iter__()
-	
+
     def __getitem__(self, name):
         return super(Form, self).__getitem__(name)
 
     @property
-    def errors_container(self): 
-        return jinja2.Markup('<div class="pgf-form-marker pgf-error-container error-container"></div>')
+    def errors_container(self):
+        return jinja2.Markup('<div class="pgf-form-marker pgf-error-container alert alert-error pgf-hidden"></div>')
 
 
     @property
@@ -69,4 +69,3 @@ class Form(forms.Form):
         if not hasattr(self, '_c'):
             self._c = CleanedDataAccessor(self)
         return self._c
-        

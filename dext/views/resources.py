@@ -16,7 +16,6 @@ def handler(*path, **params):
     method = params.get('method', ['post', 'get'])
     args = params.get('args', [])
     name = params.get('name', path[-1])
-    name = name.replace('-', '_')
 
     @functools.wraps(handler)
     def decorator(func):
