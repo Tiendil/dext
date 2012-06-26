@@ -1,8 +1,6 @@
 #coding: utf-8
 from django.http import HttpResponse
 
-from ..jinja2 import render
-
 from . import s11n
 
 class Http403(Exception):
@@ -16,6 +14,11 @@ class Error(Exception):
         self.msg = msg
 
 class ExceptionMiddleware(object):
+    '''
+    abstract class, MUST be inherited (EXCEPTION_VIEW must be defined)
+    '''
+
+    EXCEPTION_RESOURCE = None
 
     def process_exception(self, request, exception):
 
@@ -25,11 +28,11 @@ class ExceptionMiddleware(object):
                                                   'code': 403,
                                                   'error': exception.msg}),
                                     mimetype='application/json')
-            return render.template('403.html', {'msg': exception.msg}, request)
+            return self.EXCEPTION_RESOURCE(request).handler403(msg=exception.msg)
 
         if isinstance(exception, Error):
             if request.is_ajax() or request.method.lower() == 'post':
                 return HttpResponse(s11n.to_json({'status': 'error',
                                                   'error': exception.msg}),
                                     mimetype='application/json')
-            return render.template('error.html', {'msg': exception.msg}, request)
+            return self.EXCEPTION_RESOURCE(request).error(msg=exception.msg)
