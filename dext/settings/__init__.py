@@ -53,5 +53,10 @@ class Settings(object):
 
         return key in self.data
 
+    def get(self, key, default=None):
+        if key in self:
+            return self[key]
+        return default
+
 
 settings = Settings()
