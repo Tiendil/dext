@@ -47,12 +47,13 @@ def create_handler_view(resource_class, handler):
     return handler_view
 
 
-def resource_patterns(resource_class):
+def resource_patterns(resource_class, args={}):
     patterns_args = ['']
 
     for handler in resource_class.get_handlers():
         patterns_args.append( url(handler.url_regexp,
                                   create_handler_view(resource_class, handler),
-                                  name=handler.name) )
+                                  name=handler.name,
+                                  kwargs=args) )
 
     return patterns(*patterns_args)

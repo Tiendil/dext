@@ -2,7 +2,7 @@
 import inspect
 import functools
 
-from django.http import Http404, HttpResponse
+from django.http import Http404, HttpResponse, HttpResponseNotFound
 from django.middleware import csrf
 from django.shortcuts import redirect
 
@@ -97,6 +97,8 @@ class HandlerInfo(object):
                 regex = '%s/' % regex
             elif part[0] == '#':
                 regex = '%s/(?P<%s>[^\/]*)' % (regex, part[1:])
+            elif part[0] == '^':
+                regex = '%s/%s' % (regex, part[1:])
             else:
                 regex = '%s/%s' % (regex, part)
         return '^%s$' % regex[1:]
@@ -148,10 +150,16 @@ class BaseResource(object):
     def rdf(self, string):
         return HttpResponse(string, mimetype='application/rdf+xml')
 
-    def template(self, template_name, context={}, mimetype='text/html'):
+    def template(self, template_name, context={}, mimetype='text/html', status_code=200):
         full_context = {'resource': self}
         full_context.update(context)
-        return HttpResponse(render.template(template_name, full_context, self.request), mimetype=mimetype)
+
+        response_class = HttpResponse
+
+        if status_code == 404:
+            response_class = HttpResponseNotFound
+
+        return response_class(render.template(template_name, full_context, self.request), mimetype=mimetype)
 
 
     def json(self, **kwargs):
