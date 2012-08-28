@@ -10,8 +10,9 @@ class Http403(Exception):
 
 class Error(Exception):
 
-    def __init__(self, msg):
-        self.msg = msg
+    def __init__(self, code, message):
+        self.code = code
+        self.message = message
 
 class ExceptionMiddleware(object):
     '''
@@ -32,7 +33,10 @@ class ExceptionMiddleware(object):
 
         if isinstance(exception, Error):
             if request.is_ajax() or request.method.lower() == 'post':
-                return HttpResponse(s11n.to_json({'status': 'error',
-                                                  'error': exception.msg}),
-                                    mimetype='application/json')
-            return self.EXCEPTION_RESOURCE(request).error(msg=exception.msg)
+                data = {'status': 'error',
+                        'code': exception.code,
+                        'error': exception.message}
+
+                return HttpResponse(s11n.to_json(data), mimetype='application/json')
+
+            return self.EXCEPTION_RESOURCE(request).error(msg=exception.message)
