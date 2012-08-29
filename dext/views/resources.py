@@ -166,8 +166,10 @@ class BaseResource(object):
         response = HttpResponse(s11n.to_json(kwargs), mimetype='application/json')
         return response
 
-    def json_ok(self):
-        return self.json(status='ok')
+    def json_ok(self, data=None):
+        if data is None:
+            return self.json(status='ok')
+        return self.json(status='ok', data=data)
 
     def json_processing(self, status_url):
         return self.json(status='processing', status_url=status_url)
