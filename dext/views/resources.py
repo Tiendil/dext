@@ -66,7 +66,7 @@ class DispatchInfo(object):
 
         return True
 
-
+@functools.total_ordering
 class HandlerInfo(object):
 
     def __init__(self, method):
@@ -109,7 +109,20 @@ class HandlerInfo(object):
                 return dispatch_info.handler_name
         raise Http404()
 
+    def __eq__(self, other):
+        return self.path == other.path
 
+    def __lt__(self, other):
+        # print self.path, '|', other.path
+        for l, r in zip(self.path, other.path):
+            if not l: return True
+            if not r: return False
+            if l[0] == r[0] == '#': return l < r
+            if l[0] == '#': return False
+            if r[0] == '#': return True
+            if l[0] != '#' and l != r: return l < r
+
+        return len(self.path) < len(other.path)
 
 class BaseResource(object):
 
@@ -135,7 +148,7 @@ class BaseResource(object):
                 else:
                     handlers[info.path] = info
 
-        cls._handlers = handlers.values()
+        cls._handlers = sorted(handlers.values())
         return cls._handlers
 
     def string(self, string):
