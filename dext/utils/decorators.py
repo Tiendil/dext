@@ -41,7 +41,7 @@ def staff_required(permissions=[]):
             else:
                 if resource.request.user.is_active and resource.request.user.is_staff:
                     return func(resource, *argv, **kwargs)
-                else: 
+                else:
                     if resource.request.is_ajax() or resource.request.method.lower() == 'post':
                         return resource.json(status='error',
                                              error=u'У Вас нет прав для проведения данной операции')
@@ -51,9 +51,9 @@ def staff_required(permissions=[]):
 
     return decorator
 
-    
+
 def debug_required(func):
-    
+
     @functools.wraps(func)
     def wrapper(resource, *argv, **kwargs):
         if project_settings.DEBUG:
@@ -62,28 +62,34 @@ def debug_required(func):
 
     return wrapper
 
-    
-def retry_on_exception(*exceptions):
-    
+
+def retry_on_exception(max_retries=None, exceptions=[Exception]):
+
     @functools.wraps(retry_on_exception)
     def decorator(func):
 
         @functools.wraps(func)
         def wrapper(*argv, **kwargs):
-            try:
-                return func(*argv, **kwargs)
-            except Exception, e:
-                found = False
-                for exception in exceptions:
-                    if isinstance(e, exception):
-                        found = True
+            retries_number = 0
+            while True:
+                retries_number += 1
+                try:
+                    return func(*argv, **kwargs)
+                except Exception, e:
 
-                if not found:
-                    raise
+                    if retries_number == max_retries:
+                        raise
 
-                return wrapper(*argv, **kwargs)
+                    found = False
+                    for exception in exceptions:
+                        if isinstance(e, exception):
+                            found = True
+
+                    if not found:
+                        raise
+
+
 
         return wrapper
 
     return decorator
-                
