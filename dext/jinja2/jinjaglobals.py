@@ -4,6 +4,7 @@ import time
 import jinja2
 import urllib
 
+from django.conf import settings as project_settings
 from django.core.urlresolvers import reverse
 
 from .decorators import jinjafilter, jinjaglobal
@@ -15,6 +16,10 @@ def url(*args, **kwargs):
         query = urllib.urlencode(kwargs)
         base_url = '%s?%s' % (base_url, query)
     return base_url
+
+@jinjaglobal
+def full_url(protocol, *args, **kwargs):
+    return protocol + '://' + project_settings.SITE_URL + url(*args, **kwargs)
 
 @jinjaglobal
 def jmap(func, iterable):

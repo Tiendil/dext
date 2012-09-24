@@ -3,7 +3,6 @@ import jinja2
 
 
 from django.conf import settings as project_settings
-from django.http import HttpResponse
 from django.template import RequestContext
 
 from .conf import settings as jinja2_settings
