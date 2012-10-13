@@ -42,6 +42,34 @@ def handler(*path, **params):
 
     return decorator
 
+def validator(code=None, message=None):
+
+    @functools.wraps(validator)
+    def validator_decorator(checker):
+
+        @functools.wraps(checker)
+        def validator_wrapper(code=code, message=message):
+
+            @functools.wraps(validator_wrapper)
+            def view_decorator(view):
+
+                @functools.wraps(view)
+                def view_wrapper(self, *args, **kwargs):
+
+                    if not checker(self, *args, **kwargs):
+                        return self.auto_error(code=code, message=message)
+
+                    return view(self, *args, **kwargs)
+
+                return view_wrapper
+
+            return view_decorator
+
+        return validator_wrapper
+
+    return validator_decorator
+
+
 class DispatchInfo(object):
 
     def __init__(self, handler_name, methods, args=[]):
@@ -126,9 +154,14 @@ class HandlerInfo(object):
 
 class BaseResource(object):
 
-    def __init__(self, request, *args, **kwargs):
+    ERROR_TEMPLATE = None
+
+    def __init__(self, request):
         self.request = request
         self.csrf = csrf.get_token(request)
+
+    def initialize(self, *args, **kwargs):
+        pass
 
     @classmethod
     def get_handlers(cls):
@@ -196,6 +229,14 @@ class BaseResource(object):
             data['errors'] = messages
 
         return self.json(**data)
+
+    def auto_error(self, code, message, template=None, status_code=200):
+        if self.request.method == 'GET':
+            if template is None:
+                template = self.ERROR_TEMPLATE
+            return self.template(template, {'msg': message, 'error_code': code }, status_code=status_code)
+        else:
+            return self.json_error(code, message)
 
     def css(self, text):
         response = HttpResponse(text, mimetype='text/css')

@@ -16,7 +16,12 @@ def create_handler_view(resource_class, handler):
 
     def handler_view(request, *args, **kwargs):
 
-        resource = resource_class(request, *args, **kwargs)
+        resource = resource_class(request)
+        initialize_result = resource.initialize(*args, **kwargs)
+
+        if initialize_result is not None:
+            return initialize_result
+
         if result_method_name is None:
             method_name = handler.dispatch(request)
         else:

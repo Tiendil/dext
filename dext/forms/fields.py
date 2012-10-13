@@ -3,6 +3,8 @@ import functools
 
 from django import forms
 
+from dext.utils import s11n
+
 def strip_on_clean(cls):
 
     old_init = cls.__init__
@@ -42,6 +44,7 @@ def pgf(cls):
 @pgf
 class CharField(forms.CharField): pass
 
+@pgf
 class TextField(CharField):
     widget = forms.Textarea
 
@@ -60,6 +63,10 @@ class IntegerField(forms.IntegerField): pass
 @pgf
 class ChoiceField(forms.ChoiceField): pass
 
+@pgf
+class BooleanField(forms.BooleanField): pass
+
+@pgf
 class PasswordField(RegexField):
 
     REGEX = r'[a-zA-Z0-9!@#$%^&*()-_=+]+'
@@ -73,13 +80,33 @@ class PasswordField(RegexField):
                                             widget=forms.PasswordInput,
                                             *args, **kwargs)
 
-
+@pgf
 class HiddenCharField(CharField):
 
     def __init__(self, *args, **kwargs):
         super(HiddenCharField, self).__init__(widget=forms.HiddenInput, *args, **kwargs)
 
+@pgf
 class HiddenIntegerField(IntegerField):
 
     def __init__(self, *args, **kwargs):
         super(HiddenIntegerField, self).__init__(widget=forms.HiddenInput, *args, **kwargs)
+
+@pgf
+class JsonField(TextField):
+
+    def to_python(self, value):
+        if not value:
+            return None
+
+        try:
+            return s11n.from_json(value)
+        except:
+            raise forms.ValidationError(u'Неверный формат json')
+
+    def prepare_value(self, value):
+
+        if not value:
+            return ''
+
+        return s11n.to_json(value)
