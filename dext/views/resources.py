@@ -42,13 +42,13 @@ def handler(*path, **params):
 
     return decorator
 
-def validator(code=None, message=None):
+def validator(code=None, message=None, response_type=None):
 
     @functools.wraps(validator)
     def validator_decorator(checker):
 
         @functools.wraps(checker)
-        def validator_wrapper(code=code, message=message):
+        def validator_wrapper(code=code, message=message, response_type=response_type):
 
             @functools.wraps(validator_wrapper)
             def view_decorator(view):
@@ -57,7 +57,7 @@ def validator(code=None, message=None):
                 def view_wrapper(self, *args, **kwargs):
 
                     if not checker(self, *args, **kwargs):
-                        return self.auto_error(code=code, message=message)
+                        return self.auto_error(code=code, message=message,  response_type=response_type)
 
                     return view(self, *args, **kwargs)
 
@@ -185,18 +185,18 @@ class BaseResource(object):
         return cls._handlers
 
     def string(self, string):
-        return HttpResponse(string, mimetype='text/html')
+        return HttpResponse(string, mimetype='text/html; charset=utf-8')
 
     def atom(self, string):
-        return HttpResponse(string, mimetype='application/atom+xml')
+        return HttpResponse(string, mimetype='application/atom+xml; charset=utf-8')
 
     def rss(self, string):
-        return HttpResponse(string, mimetype='application/rss+xml')
+        return HttpResponse(string, mimetype='application/rss+xml; charset=utf-8')
 
     def rdf(self, string):
-        return HttpResponse(string, mimetype='application/rdf+xml')
+        return HttpResponse(string, mimetype='application/rdf+xml; charset=utf-8')
 
-    def template(self, template_name, context={}, mimetype='text/html', status_code=200):
+    def template(self, template_name, context={}, mimetype='text/html; charset=utf-8', status_code=200):
         full_context = {'resource': self}
         full_context.update(context)
 
@@ -205,11 +205,14 @@ class BaseResource(object):
         if status_code == 404:
             response_class = HttpResponseNotFound
 
+        if 'charser' not in mimetype:
+            mimetype += '; charset=utf-8'
+
         return response_class(render.template(template_name, full_context, self.request), mimetype=mimetype)
 
 
     def json(self, **kwargs):
-        response = HttpResponse(s11n.to_json(kwargs), mimetype='application/json')
+        response = HttpResponse(s11n.to_json(kwargs), mimetype='application/json; charset=utf-8')
         return response
 
     def json_ok(self, data=None):
@@ -230,8 +233,8 @@ class BaseResource(object):
 
         return self.json(**data)
 
-    def auto_error(self, code, message, template=None, status_code=200):
-        if self.request.method == 'GET':
+    def auto_error(self, code, message, template=None, status_code=200, response_type=None):
+        if self.request.method == 'GET' and response_type in (None, 'html'):
             if template is None:
                 template = self.ERROR_TEMPLATE
             return self.template(template, {'msg': message, 'error_code': code }, status_code=status_code)
@@ -239,7 +242,7 @@ class BaseResource(object):
             return self.json_error(code, message)
 
     def css(self, text):
-        response = HttpResponse(text, mimetype='text/css')
+        response = HttpResponse(text, mimetype='text/css; charset=utf-8')
         return response
 
     def redirect(self, url, permanent=False):
