@@ -64,6 +64,9 @@ class IntegerField(forms.IntegerField): pass
 class ChoiceField(forms.ChoiceField): pass
 
 @pgf
+class TypedChoiceField(forms.TypedChoiceField): pass
+
+@pgf
 class BooleanField(forms.BooleanField): pass
 
 @pgf
