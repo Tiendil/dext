@@ -46,7 +46,8 @@ class Jinja2Renderer(object):
         self.env = jinja2.Environment(loader=loader,
                                       autoescape=True,
                                       trim_blocks=True,
-                                      auto_reload=settings.DEBUG)
+                                      auto_reload=settings.DEBUG,
+                                      extensions=['jinja2.ext.loopcontrols'])
 
     def update_globals(self, global_functions, filter_functions):
         self.env.globals.update(global_functions)
