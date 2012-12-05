@@ -234,7 +234,7 @@ class BaseResource(object):
         return self.json(**data)
 
     def auto_error(self, code, message, template=None, status_code=200, response_type=None):
-        if self.request.method == 'GET' and response_type in (None, 'html'):
+        if self.request.method == 'GET' and response_type in (None, 'html') and not self.request.is_ajax():
             if template is None:
                 template = self.ERROR_TEMPLATE
             return self.template(template, {'msg': message, 'error_code': code }, status_code=status_code)
