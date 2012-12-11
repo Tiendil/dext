@@ -2,7 +2,7 @@
 import inspect
 import functools
 
-from django.http import Http404, HttpResponse, HttpResponseNotFound
+from django.http import Http404, HttpResponse, HttpResponseNotFound, HttpResponseRedirect, HttpResponsePermanentRedirect
 from django.middleware import csrf
 from django.shortcuts import redirect
 
@@ -246,5 +246,9 @@ class BaseResource(object):
         return response
 
     def redirect(self, url, permanent=False):
-        response = redirect(url, permanent=permanent)
-        return response
+        try:
+            if permanent:
+                return HttpResponsePermanentRedirect(url)
+            return HttpResponseRedirect(url)
+        except:
+            return HttpResponseRedirect('/')
