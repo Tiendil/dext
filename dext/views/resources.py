@@ -4,10 +4,9 @@ import functools
 
 from django.http import Http404, HttpResponse, HttpResponseNotFound, HttpResponseRedirect, HttpResponsePermanentRedirect
 from django.middleware import csrf
-from django.shortcuts import redirect
 
-from ..utils import s11n
-from ..jinja2 import render
+from dext.utils import s11n
+from dext.jinja2 import render
 
 class ResourceException(Exception): pass
 
