@@ -4,10 +4,9 @@ import functools
 
 from django.http import Http404, HttpResponse, HttpResponseNotFound, HttpResponseRedirect, HttpResponsePermanentRedirect
 from django.middleware import csrf
-from django.shortcuts import redirect
 
-from ..utils import s11n
-from ..jinja2 import render
+from dext.utils import s11n, memoize
+from dext.jinja2 import render
 
 class ResourceException(Exception): pass
 
@@ -164,10 +163,8 @@ class BaseResource(object):
         pass
 
     @classmethod
+    @memoize.memclass
     def get_handlers(cls):
-
-        if hasattr(cls, '_handlers'):
-            return cls._handlers
 
         handlers = {}
 
@@ -181,8 +178,7 @@ class BaseResource(object):
                 else:
                     handlers[info.path] = info
 
-        cls._handlers = sorted(handlers.values())
-        return cls._handlers
+        return sorted(handlers.values())
 
     def string(self, string):
         return HttpResponse(string, mimetype='text/html; charset=utf-8')
