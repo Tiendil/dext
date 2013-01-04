@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
 import inspect
 import functools
 
@@ -40,33 +40,6 @@ def handler(*path, **params):
         return func
 
     return decorator
-
-def validator(code=None, message=None, response_type=None):
-
-    @functools.wraps(validator)
-    def validator_decorator(checker):
-
-        @functools.wraps(checker)
-        def validator_wrapper(code=code, message=message, response_type=response_type):
-
-            @functools.wraps(validator_wrapper)
-            def view_decorator(view):
-
-                @functools.wraps(view)
-                def view_wrapper(self, *args, **kwargs):
-
-                    if not checker(self, *args, **kwargs):
-                        return self.auto_error(code=code, message=message,  response_type=response_type)
-
-                    return view(self, *args, **kwargs)
-
-                return view_wrapper
-
-            return view_decorator
-
-        return validator_wrapper
-
-    return validator_decorator
 
 
 class DispatchInfo(object):

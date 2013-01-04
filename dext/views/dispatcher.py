@@ -14,10 +14,10 @@ def create_handler_view(resource_class, handler):
         result_method_name = None
 
 
-    def handler_view(request, *args, **kwargs):
+    def handler_view(request, **kwargs): # *args removeed
 
         resource = resource_class(request)
-        initialize_result = resource.initialize(*args, **kwargs)
+        initialize_result = resource.initialize(**kwargs) # *args removeed
 
         if initialize_result is not None:
             return initialize_result
