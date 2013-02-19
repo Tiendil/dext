@@ -67,6 +67,12 @@ class ChoiceField(forms.ChoiceField): pass
 class TypedChoiceField(forms.TypedChoiceField): pass
 
 @pgf
+class MultipleChoiceField(forms.MultipleChoiceField): pass
+
+@pgf
+class TypedMultipleChoiceField(forms.TypedMultipleChoiceField): pass
+
+@pgf
 class BooleanField(forms.BooleanField): pass
 
 @pgf
