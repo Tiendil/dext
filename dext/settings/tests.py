@@ -1,12 +1,12 @@
 # coding: utf-8
+import mock
 
-from django.test import TestCase
-
+from dext.utils import testcase
 from dext.settings import Settings, SettingsException
 from dext.settings.models import Setting
 
 
-class SettingsTest(TestCase):
+class SettingsTest(testcase.TestCase):
 
     def setUp(self):
         self.settings = Settings()
@@ -19,7 +19,11 @@ class SettingsTest(TestCase):
 
     def test_set_with_create(self):
         self.assertEqual(Setting.objects.all().count(), 0)
-        self.settings['key'] = 'value'
+
+        with mock.patch('dext.settings.Settings._cache_data') as counter:
+            self.settings['key'] = 'value'
+
+        self.assertEqual(counter.call_count, 1)
         self.assertEqual(Setting.objects.all().count(), 1)
 
         record = Setting.objects.all()[0]
@@ -27,10 +31,15 @@ class SettingsTest(TestCase):
         self.assertEqual(record.value, 'value')
 
     def test_set_without_create(self):
+
         self.assertEqual(Setting.objects.all().count(), 0)
-        self.settings['key'] = 'value'
-        self.assertEqual(Setting.objects.all().count(), 1)
-        self.settings['key'] = 'value 2'
+
+        with mock.patch('dext.settings.Settings._cache_data') as counter:
+            self.settings['key'] = 'value'
+            self.assertEqual(Setting.objects.all().count(), 1)
+            self.settings['key'] = 'value 2'
+
+        self.assertEqual(counter.call_count, 2)
         self.assertEqual(Setting.objects.all().count(), 1)
 
         record = Setting.objects.all()[0]

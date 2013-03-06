@@ -1,6 +1,8 @@
 # coding: utf-8
 
+from dext.utils import cache
 from dext.settings.models import Setting
+from dext.settings.conf import dext_settings
 
 class SettingsException(Exception): pass
 
@@ -11,9 +13,16 @@ class Settings(object):
         self.data = {}
         self.initialized = False
 
+    @cache.memoize(dext_settings.CACHE_KEY, dext_settings.CACHE_TIME)
+    def _load_data(self):
+        return {record.key:record.value for record in Setting.objects.all()}
+
+    def _cache_data(self):
+        cache.set(dext_settings.CACHE_KEY, self.data, dext_settings.CACHE_TIME)
+
     def refresh(self):
         self.initialized = True
-        self.data = dict([ (record.key, record) for record in Setting.objects.all()])
+        self.data = self._load_data()
 
     def __getitem__(self, key):
         if not isinstance(key, basestring):
@@ -24,7 +33,7 @@ class Settings(object):
         if not self.initialized:
             self.refresh()
 
-        return self.data[key].value
+        return self.data[key]
 
     def __setitem__(self, key, value):
 
@@ -37,14 +46,13 @@ class Settings(object):
             self.refresh()
 
         if key in self.data:
-            record = self.data[key]
-            record.value = value
-            record.save()
-            return
+            Setting.objects.filter(key=key).update(value=value)
+        else:
+            Setting.objects.create(key=key, value=value)
 
-        record = Setting(key=key, value=value)
-        record.save()
-        self.data[key] = record
+        self.data[key] = value
+
+        self._cache_data()
 
     def __contains__(self, key):
 
