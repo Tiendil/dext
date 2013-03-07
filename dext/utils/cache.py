@@ -7,6 +7,12 @@ from django.core.cache import cache as django_cache
 def set(key, value, timeout):
     django_cache.set(key, value, timeout)
 
+def get(key):
+    return django_cache.get(key)
+
+def set_many(cache_dict, timeout):
+    django_cache.set_many(cache_dict, timeout)
+
 def memoize(key, timeout):
 
     @functools.wraps(memoize)
