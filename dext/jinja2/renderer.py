@@ -47,6 +47,7 @@ class Jinja2Renderer(object):
                                       autoescape=True,
                                       trim_blocks=True,
                                       auto_reload=settings.DEBUG,
+                                      undefined=jinja2.StrictUndefined,
                                       extensions=['jinja2.ext.loopcontrols'])
 
     def update_globals(self, global_functions, filter_functions):
