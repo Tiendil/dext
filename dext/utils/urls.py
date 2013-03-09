@@ -7,6 +7,9 @@ class UrlBuilder(object):
         self.base = base
         self.default_arguments = arguments
 
+    @property
+    def arguments_names(self): return self.default_arguments.keys()
+
     def __call__(self, **kwargs):
         if not len(self.default_arguments) and not len(kwargs):
             return self.base
