@@ -13,16 +13,24 @@ class Settings(object):
         self.data = {}
         self.initialized = False
 
-    @cache.memoize(dext_settings.CACHE_KEY, dext_settings.CACHE_TIME)
     def _load_data(self):
         return {record.key:record.value for record in Setting.objects.all()}
+
+    @cache.memoize(dext_settings.CACHE_KEY, dext_settings.CACHE_TIME)
+    def _load_cached_data(self):
+        return self._load_data()
 
     def _cache_data(self):
         cache.set(dext_settings.CACHE_KEY, self.data, dext_settings.CACHE_TIME)
 
-    def refresh(self):
+    def refresh(self, force=False):
         self.initialized = True
-        self.data = self._load_data()
+
+        if not force:
+            self.data = self._load_cached_data()
+        else:
+            self.data = self._load_data()
+            self._cache_data()
 
     def __getitem__(self, key):
         if not isinstance(key, basestring):
