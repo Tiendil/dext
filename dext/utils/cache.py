@@ -13,6 +13,9 @@ def get(key):
 def set_many(cache_dict, timeout):
     django_cache.set_many(cache_dict, timeout)
 
+def delete(key):
+    django_cache.delete(key)
+
 def memoize(key, timeout):
 
     @functools.wraps(memoize)
