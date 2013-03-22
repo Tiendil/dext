@@ -23,7 +23,7 @@ class SettingsTest(testcase.TestCase):
         with mock.patch('dext.settings.Settings._cache_data') as counter:
             self.settings['key'] = 'value'
 
-        self.assertEqual(counter.call_count, 2) # one call from settings.__setitem__, second — from model signal_processor
+        self.assertEqual(counter.call_count, 1) # one call from settings.__setitem__
         self.assertEqual(Setting.objects.all().count(), 1)
 
         record = Setting.objects.all()[0]
@@ -39,7 +39,7 @@ class SettingsTest(testcase.TestCase):
             self.assertEqual(Setting.objects.all().count(), 1)
             self.settings['key'] = 'value 2'
 
-        self.assertEqual(counter.call_count, 3) # two calls from settings.__setitem__, +1 from model signal_processor
+        self.assertEqual(counter.call_count, 2) # two calls from settings.__setitem__
         self.assertEqual(Setting.objects.all().count(), 1)
 
         record = Setting.objects.all()[0]
@@ -71,5 +71,5 @@ class SettingsTest(testcase.TestCase):
         with mock.patch('dext.settings.Settings._cache_data') as counter:
             model.delete()
 
-        self.assertEqual(counter.call_count, 1) #  from model signal_processor
+        self.assertEqual(counter.call_count, 0)
         self.assertEqual(Setting.objects.all().count(), 0)
