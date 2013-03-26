@@ -20,10 +20,8 @@ class SettingsTest(testcase.TestCase):
     def test_set_with_create(self):
         self.assertEqual(Setting.objects.all().count(), 0)
 
-        with mock.patch('dext.settings.Settings._cache_data') as counter:
-            self.settings['key'] = 'value'
+        self.settings['key'] = 'value'
 
-        self.assertEqual(counter.call_count, 1) # one call from settings.__setitem__
         self.assertEqual(Setting.objects.all().count(), 1)
 
         record = Setting.objects.all()[0]
@@ -34,12 +32,10 @@ class SettingsTest(testcase.TestCase):
 
         self.assertEqual(Setting.objects.all().count(), 0)
 
-        with mock.patch('dext.settings.Settings._cache_data') as counter:
-            self.settings['key'] = 'value'
-            self.assertEqual(Setting.objects.all().count(), 1)
-            self.settings['key'] = 'value 2'
+        self.settings['key'] = 'value'
+        self.assertEqual(Setting.objects.all().count(), 1)
+        self.settings['key'] = 'value 2'
 
-        self.assertEqual(counter.call_count, 2) # two calls from settings.__setitem__
         self.assertEqual(Setting.objects.all().count(), 1)
 
         record = Setting.objects.all()[0]
@@ -68,8 +64,6 @@ class SettingsTest(testcase.TestCase):
     def test_model_delete(self):
         model = Setting.objects.create(key='key 1', value='value 1')
 
-        with mock.patch('dext.settings.Settings._cache_data') as counter:
-            model.delete()
+        model.delete()
 
-        self.assertEqual(counter.call_count, 0)
         self.assertEqual(Setting.objects.all().count(), 0)
