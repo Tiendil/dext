@@ -5,7 +5,7 @@ from django.contrib import admin
 from dext.settings.models import Setting
 
 class SettingAdmin(admin.ModelAdmin):
-    list_display = ('key', 'value')
+    list_display = ('key', 'value', 'updated_at')
 
     def save_model(self, request, obj, form, change):
         from dext.settings import settings
