@@ -1,6 +1,5 @@
 # coding: utf8
 import copy
-from django.conf import settings as project_settings
 
 class UrlBuilder(object):
 
@@ -19,4 +18,4 @@ class UrlBuilder(object):
         arguments = copy.copy(self.default_arguments)
         arguments.update(kwargs)
 
-        return self.protocol + '://' + project_settings.SITE_URL + self.base + '?' + '&'.join('%s=%s' % (key, value) for key, value in arguments.items() if value is not None)
+        return self.base + '?' + '&'.join('%s=%s' % (key, value) for key, value in arguments.items() if value is not None)

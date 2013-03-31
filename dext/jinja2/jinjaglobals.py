@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
 import datetime
 import time
 import jinja2
@@ -20,6 +20,10 @@ def url(*args, **kwargs):
 @jinjaglobal
 def full_url(protocol, *args, **kwargs):
     return protocol + '://' + project_settings.SITE_URL + url(*args, **kwargs)
+
+@jinjaglobal
+def absolute_url(relative_url, protocol='http'):
+    return protocol + '://' + project_settings.SITE_URL + relative_url
 
 @jinjaglobal
 def jmap(func, iterable):
