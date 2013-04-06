@@ -47,6 +47,20 @@ class Settings(object):
 
         self.data[key] = value
 
+    def __delitem__(self, key):
+        if not isinstance(key, basestring):
+            raise SettingsException('wrong key type: %r' % key)
+
+        if not self.initialized:
+            self.refresh()
+
+        if key in self.data:
+            Setting.objects.filter(key=key).delete()
+        else:
+            raise SettingsException('key "%r" not in settings' % key)
+
+        del self.data[key]
+
     def __contains__(self, key):
 
         if not self.initialized:

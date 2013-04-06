@@ -1,5 +1,4 @@
 # coding: utf-8
-import mock
 
 from dext.utils import testcase
 from dext.settings import Settings, SettingsException
@@ -67,3 +66,19 @@ class SettingsTest(testcase.TestCase):
         model.delete()
 
         self.assertEqual(Setting.objects.all().count(), 0)
+
+    def test_delitem_wrong_key(self):
+        self.settings['key'] = 'value'
+        self.assertRaises(SettingsException, self.settings.__delitem__, 1)
+
+    def test_delitem_no_key(self):
+        self.settings['key'] = 'value'
+        self.assertRaises(SettingsException, self.settings.__delitem__, 'key_2')
+
+    def test_delitem(self):
+        self.settings['key'] = 'value'
+        self.assertEqual(Setting.objects.all().count(), 1)
+        self.assertEqual(self.settings.get('key'), 'value')
+        del self.settings['key']
+        self.assertEqual(Setting.objects.all().count(), 0)
+        self.assertEqual(self.settings.get('key'), None)

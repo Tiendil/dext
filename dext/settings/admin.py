@@ -10,11 +10,9 @@ class SettingAdmin(admin.ModelAdmin):
     def save_model(self, request, obj, form, change):
         from dext.settings import settings
         settings[obj.key] = obj.value
-        obj.save()
 
     def delete_model(self, request, obj):
         from dext.settings import settings
         del settings[obj.key]
-        obj.delete()
 
 admin.site.register(Setting, SettingAdmin)
