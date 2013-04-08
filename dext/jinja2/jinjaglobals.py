@@ -2,28 +2,18 @@
 import datetime
 import time
 import jinja2
-import urllib
 
-from django.conf import settings as project_settings
-from django.core.urlresolvers import reverse
-
-from .decorators import jinjafilter, jinjaglobal
+from dext.jinja2.decorators import jinjafilter, jinjaglobal
+from dext.utils import urls
 
 @jinjaglobal
-def url(*args, **kwargs):
-    base_url = reverse(args[0], args=args[1:])
-    if kwargs:
-        query = urllib.urlencode(kwargs)
-        base_url = '%s?%s' % (base_url, query)
-    return base_url
+def url(*args, **kwargs): return urls.url(*args, **kwargs)
 
 @jinjaglobal
-def full_url(protocol, *args, **kwargs):
-    return protocol + '://' + project_settings.SITE_URL + url(*args, **kwargs)
+def full_url(*args, **kwargs): return urls.full_url(*args, **kwargs)
 
 @jinjaglobal
-def absolute_url(relative_url, protocol='http'):
-    return protocol + '://' + project_settings.SITE_URL + relative_url
+def absolute_url(*args, **kwargs): return urls.absolute_url(*args, **kwargs)
 
 @jinjaglobal
 def jmap(func, iterable):
