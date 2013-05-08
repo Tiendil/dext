@@ -25,8 +25,8 @@ def endl2br(value):
     return jinja2.Markup(value.replace('\n\r', '</br>').replace('\n', r'</br>'))
 
 @jinjafilter
-def percents(value):
-    return '%d%%' % int((round(value, 2) * 100))
+def percents(value, points=0):
+    return ('%'+('.%d' % points) + 'f%%') % (round(value, 2+points) * 100)
 
 @jinjafilter
 def timestamp(value):

@@ -35,9 +35,11 @@ class TestCase(DjangoTestCase):
         for text in texts:
             if isinstance(text, tuple):
                 substr, number = text
+                substr = unicode(substr)
                 self.assertEqual((substr, content.count(substr)), (substr, number))
             else:
-                self.assertEqual((text, text in content), (text, True))
+                substr = unicode(text)
+                self.assertEqual((substr, substr in content), (substr, True))
 
     def check_ajax_ok(self, response, data=None, content_type='application/json', encoding='utf-8'):
         self.assertTrue(content_type in response['Content-Type'])
@@ -70,4 +72,7 @@ class TestCase(DjangoTestCase):
             self.assertEqual(data['status_url'], status_url)
 
     def check_redirect(self, requested_url, test_url, status_code=302, target_status_code=200):
-        self.assertRedirects(self.client.get(requested_url), test_url, status_code=status_code, target_status_code=target_status_code)
+        self.check_response_redirect(self.client.get(requested_url), test_url, status_code=status_code, target_status_code=target_status_code)
+
+    def check_response_redirect(self, response, test_url, status_code=302, target_status_code=200):
+        self.assertRedirects(response, test_url, status_code=status_code, target_status_code=target_status_code)
