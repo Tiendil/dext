@@ -3,13 +3,13 @@
 import functools
 
 
-def validator(code=None, message=None, response_type=None):
+def validator(code=None, message=None, response_type=None, status_code=200):
 
     @functools.wraps(validator)
     def validator_decorator(checker):
 
         @functools.wraps(checker)
-        def validator_wrapper(code=code, message=message, response_type=response_type):
+        def validator_wrapper(code=code, message=message, response_type=response_type, status_code=status_code):
 
             @functools.wraps(validator_wrapper)
             def view_decorator(view):
@@ -18,7 +18,7 @@ def validator(code=None, message=None, response_type=None):
                 def view_wrapper(resource, **kwargs):
 
                     if not checker(resource, **kwargs):
-                        return resource.auto_error(code=code, message=message,  response_type=response_type)
+                        return resource.auto_error(code=code, message=message,  response_type=response_type, status_code=status_code)
 
                     return view(resource, **kwargs)
 
