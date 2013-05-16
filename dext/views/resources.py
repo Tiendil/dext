@@ -127,6 +127,7 @@ class HandlerInfo(object):
 class BaseResource(object):
 
     ERROR_TEMPLATE = None
+    DIALOG_ERROR_TEMPLATE = None
 
     def __init__(self, request):
         self.request = request
@@ -203,9 +204,13 @@ class BaseResource(object):
         return self.json(**data)
 
     def auto_error(self, code, message, template=None, status_code=200, response_type=None):
-        if self.request.method == 'GET' and response_type in (None, 'html') and not self.request.is_ajax():
-            if template is None:
-                template = self.ERROR_TEMPLATE
+        if self.request.method == 'GET' and response_type in (None, 'html'):
+            if self.request.is_ajax():
+                if template is None:
+                    template = self.DIALOG_ERROR_TEMPLATE
+            else:
+                if template is None:
+                    template = self.ERROR_TEMPLATE
             return self.template(template, {'msg': message, 'error_code': code }, status_code=status_code)
         else:
             return self.json_error(code, message)
