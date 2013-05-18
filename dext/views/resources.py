@@ -6,6 +6,7 @@ from django.http import Http404, HttpResponse, HttpResponseNotFound, HttpRespons
 from django.middleware import csrf
 
 from dext.utils import s11n, memoize
+from dext.utils.response import content_type_to_response_type
 from dext.jinja2 import render
 
 class ResourceException(Exception): pass
@@ -204,16 +205,17 @@ class BaseResource(object):
         return self.json(**data)
 
     def auto_error(self, code, message, template=None, status_code=200, response_type=None):
-        if self.request.method == 'GET' and response_type in (None, 'html'):
+
+        if response_type is None:
+            response_type =  content_type_to_response_type(self.request.META.get('CONTENT_TYPE'))
+
+        if response_type == 'html':
             if self.request.is_ajax():
-                if template is None:
-                    template = self.DIALOG_ERROR_TEMPLATE
+                return self.template(self.DIALOG_ERROR_TEMPLATE, {'msg': message, 'error_code': code }, status_code=status_code)
             else:
-                if template is None:
-                    template = self.ERROR_TEMPLATE
-            return self.template(template, {'msg': message, 'error_code': code }, status_code=status_code)
-        else:
-            return self.json_error(code, message)
+                return self.template(self.ERROR_TEMPLATE, {'msg': message, 'error_code': code }, status_code=status_code)
+
+        return self.json_error(code, message)
 
     def css(self, text):
         response = HttpResponse(text, mimetype='text/css; charset=utf-8')
