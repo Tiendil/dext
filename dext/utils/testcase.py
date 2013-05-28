@@ -72,7 +72,16 @@ class TestCase(DjangoTestCase):
             self.assertEqual(data['status_url'], status_url)
 
     def check_redirect(self, requested_url, test_url, status_code=302, target_status_code=200):
-        self.check_response_redirect(self.client.get(requested_url), test_url, status_code=status_code, target_status_code=target_status_code)
+        self.check_response_redirect(self.request_html(requested_url), test_url, status_code=status_code, target_status_code=target_status_code)
 
     def check_response_redirect(self, response, test_url, status_code=302, target_status_code=200):
         self.assertRedirects(response, test_url, status_code=status_code, target_status_code=target_status_code)
+
+    def request_html(self, url):
+        return self.client.get(url, HTTP_ACCEPT='text/html')
+
+    def request_ajax_json(self, url):
+        return self.client.get(url, HTTP_ACCEPT='text/json', HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+
+    def request_ajax_html(self, url):
+        return self.client.get(url, HTTP_ACCEPT='text/html', HTTP_X_REQUESTED_WITH='XMLHttpRequest')

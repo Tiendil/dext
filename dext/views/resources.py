@@ -6,7 +6,7 @@ from django.http import Http404, HttpResponse, HttpResponseNotFound, HttpRespons
 from django.middleware import csrf
 
 from dext.utils import s11n, memoize
-from dext.utils.response import content_type_to_response_type
+from dext.utils.response import mime_type_to_response_type
 from dext.jinja2 import render
 
 class ResourceException(Exception): pass
@@ -207,7 +207,7 @@ class BaseResource(object):
     def auto_error(self, code, message, template=None, status_code=200, response_type=None):
 
         if response_type is None:
-            response_type =  content_type_to_response_type(self.request.META.get('CONTENT_TYPE'))
+            response_type = mime_type_to_response_type(self.request.META.get('HTTP_ACCEPT'))
 
         if response_type == 'html':
             if self.request.is_ajax():

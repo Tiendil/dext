@@ -17,7 +17,7 @@ def template(template_name, context, request, mimetype='text/html'):
     return response
 
 
-def content_type_to_response_type(content_type):
+def mime_type_to_response_type(content_type):
     if content_type is None:
         return 'json'
 
