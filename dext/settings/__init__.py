@@ -1,5 +1,7 @@
 # coding: utf-8
 
+from datetime import datetime
+
 from dext.settings.models import Setting
 
 
@@ -41,7 +43,7 @@ class Settings(object):
             self.refresh()
 
         if key in self.data:
-            Setting.objects.filter(key=key).update(value=value)
+            Setting.objects.filter(key=key).update(value=value, updated_at=datetime.now())
         else:
             Setting.objects.create(key=key, value=value)
 

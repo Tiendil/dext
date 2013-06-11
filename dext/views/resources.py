@@ -158,6 +158,9 @@ class BaseResource(object):
     def string(self, string):
         return HttpResponse(string, mimetype='text/html; charset=utf-8')
 
+    def xml(self, string):
+        return HttpResponse(string, mimetype='text/xml; charset=utf-8')
+
     def atom(self, string):
         return HttpResponse(string, mimetype='application/atom+xml; charset=utf-8')
 

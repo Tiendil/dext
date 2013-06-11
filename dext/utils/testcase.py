@@ -25,13 +25,17 @@ class TestCase(DjangoTestCase):
         request.user = AnonymousUser() if user is None else user
         return request
 
-    def check_html_ok(self, response, status_code=200, texts=[], content_type='text/html', encoding='utf-8'):
+    def check_html_ok(self, response, status_code=200, texts=[], content_type='text/html', encoding='utf-8', body=None):
         self.assertEqual(response.status_code, status_code)
 
         self.assertTrue(content_type in response['Content-Type'])
         self.assertTrue(encoding in response['Content-Type'])
 
         content = response.content.decode('utf-8')
+
+        if body is not None:
+            self.assertEqual(content, body)
+
         for text in texts:
             if isinstance(text, tuple):
                 substr, number = text
@@ -40,6 +44,11 @@ class TestCase(DjangoTestCase):
             else:
                 substr = unicode(text)
                 self.assertEqual((substr, substr in content), (substr, True))
+
+    def check_xml_ok(self, *argv, **kwargs):
+        if 'content_type' not in kwargs:
+            kwargs['content_type'] = 'text/xml'
+        return self.check_html_ok(*argv, **kwargs)
 
     def check_ajax_ok(self, response, data=None, content_type='application/json', encoding='utf-8'):
         self.assertTrue(content_type in response['Content-Type'])
@@ -80,8 +89,17 @@ class TestCase(DjangoTestCase):
     def request_html(self, url):
         return self.client.get(url, HTTP_ACCEPT='text/html')
 
+    def request_xml(self, url):
+        return self.client.get(url, HTTP_ACCEPT='text/xml')
+
     def request_ajax_json(self, url):
         return self.client.get(url, HTTP_ACCEPT='text/json', HTTP_X_REQUESTED_WITH='XMLHttpRequest')
 
     def request_ajax_html(self, url):
         return self.client.get(url, HTTP_ACCEPT='text/html', HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+
+    def post_xml(self, url):
+        return self.client.post(url, HTTP_ACCEPT='text/xml')
+
+    def post_ajax_json(self, url, data=None):
+        return self.client.post(url, data if data else {}, HTTP_ACCEPT='text/json', HTTP_X_REQUESTED_WITH='XMLHttpRequest')
