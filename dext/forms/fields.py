@@ -50,7 +50,15 @@ class TextField(CharField):
 
 @strip_on_clean
 @pgf
-class EmailField(forms.EmailField): pass
+class EmailField(forms.EmailField):
+
+    def clean(self, value):
+        email = super(EmailField, self).clean(value)
+
+        dog_index = email.rfind('@')
+
+        return email[:dog_index] + email[dog_index:].lower()
+
 
 @strip_on_clean
 @pgf
