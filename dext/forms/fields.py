@@ -3,7 +3,7 @@ import functools
 
 from django import forms
 
-from dext.utils import s11n
+from dext.utils import s11n, logic
 
 def strip_on_clean(cls):
 
@@ -54,11 +54,7 @@ class EmailField(forms.EmailField):
 
     def clean(self, value):
         email = super(EmailField, self).clean(value)
-
-        dog_index = email.rfind('@')
-
-        return email[:dog_index] + email[dog_index:].lower()
-
+        return logic.normalize_email(email)
 
 @strip_on_clean
 @pgf

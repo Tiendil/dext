@@ -155,22 +155,22 @@ class BaseResource(object):
 
         return sorted(handlers.values())
 
-    def string(self, string):
-        return HttpResponse(string, mimetype='text/html; charset=utf-8')
+    def string(self, string, charset='utf-8'):
+        return HttpResponse(string, mimetype='text/html; charset=%s' % charset)
 
-    def xml(self, string):
-        return HttpResponse(string, mimetype='text/xml; charset=utf-8')
+    def xml(self, string, charset='utf-8'):
+        return HttpResponse(string, mimetype='text/xml; charset=%s' % charset)
 
-    def atom(self, string):
-        return HttpResponse(string, mimetype='application/atom+xml; charset=utf-8')
+    def atom(self, string, charset='utf-8'):
+        return HttpResponse(string, mimetype='application/atom+xml; charset=%s' % charset)
 
-    def rss(self, string):
-        return HttpResponse(string, mimetype='application/rss+xml; charset=utf-8')
+    def rss(self, string, charset='utf-8'):
+        return HttpResponse(string, mimetype='application/rss+xml; charset=%s' % charset)
 
-    def rdf(self, string):
-        return HttpResponse(string, mimetype='application/rdf+xml; charset=utf-8')
+    def rdf(self, string, charset='utf-8'):
+        return HttpResponse(string, mimetype='application/rdf+xml; charset=%s' % charset)
 
-    def template(self, template_name, context={}, mimetype='text/html; charset=utf-8', status_code=200):
+    def template(self, template_name, context={}, status_code=200, charset='utf-8'):
         full_context = {'resource': self}
         full_context.update(context)
 
@@ -179,27 +179,25 @@ class BaseResource(object):
         if status_code == 404:
             response_class = HttpResponseNotFound
 
-        if 'charser' not in mimetype:
-            mimetype += '; charset=utf-8'
-
-        return response_class(render.template(template_name, full_context, self.request), mimetype=mimetype)
+        return response_class(render.template(template_name, full_context, self.request), mimetype='text/html; charset=%s' % charset)
 
 
-    def json(self, **kwargs):
-        response = HttpResponse(s11n.to_json(kwargs), mimetype='application/json; charset=utf-8')
+    def json(self, charset='utf-8', **kwargs):
+        response = HttpResponse(s11n.to_json(kwargs), mimetype='application/json; charset=%s' % charset)
         return response
 
-    def json_ok(self, data=None):
+    def json_ok(self, data=None, charset='utf-8'):
         if data is None:
-            return self.json(status='ok')
-        return self.json(status='ok', data=data)
+            return self.json(status='ok', charset=charset)
+        return self.json(status='ok', data=data, charset=charset)
 
-    def json_processing(self, status_url):
-        return self.json(status='processing', status_url=status_url)
+    def json_processing(self, status_url, charset='utf-8'):
+        return self.json(status='processing', status_url=status_url, charset=charset)
 
-    def json_error(self, code, messages=None):
+    def json_error(self, code, messages=None, charset='utf-8'):
         data = {'status': 'error',
-                'code': code}
+                'code': code,
+                'charset': charset}
         if isinstance(messages, basestring):
             data['error'] = messages
         else:
@@ -207,7 +205,7 @@ class BaseResource(object):
 
         return self.json(**data)
 
-    def auto_error(self, code, message, template=None, status_code=200, response_type=None):
+    def auto_error(self, code, message, template=None, status_code=200, response_type=None, charset='utf-8'):
 
         if response_type is None:
             response_type = mime_type_to_response_type(self.request.META.get('HTTP_ACCEPT'))
@@ -218,10 +216,10 @@ class BaseResource(object):
             else:
                 return self.template(self.ERROR_TEMPLATE, {'msg': message, 'error_code': code }, status_code=status_code)
 
-        return self.json_error(code, message)
+        return self.json_error(code, message, charset=charset)
 
-    def css(self, text):
-        response = HttpResponse(text, mimetype='text/css; charset=utf-8')
+    def css(self, text, charset='utf-8'):
+        response = HttpResponse(text, mimetype='text/css; charset=%s' % charset)
         return response
 
     def redirect(self, url, permanent=False):

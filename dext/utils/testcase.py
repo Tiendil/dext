@@ -31,7 +31,7 @@ class TestCase(DjangoTestCase):
         self.assertTrue(content_type in response['Content-Type'])
         self.assertTrue(encoding in response['Content-Type'])
 
-        content = response.content.decode('utf-8')
+        content = response.content.decode(encoding)
 
         if body is not None:
             self.assertEqual(content, body)
