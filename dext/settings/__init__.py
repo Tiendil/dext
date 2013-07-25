@@ -3,6 +3,7 @@
 from datetime import datetime
 
 from dext.settings.models import Setting
+from dext.settings.conf import dext_settings_settings
 
 
 class SettingsException(Exception): pass
@@ -42,10 +43,11 @@ class Settings(object):
         if not self.initialized:
             self.refresh()
 
-        if key in self.data:
-            Setting.objects.filter(key=key).update(value=value, updated_at=datetime.now())
-        else:
-            Setting.objects.create(key=key, value=value)
+        if dext_settings_settings.UPDATE_DATABASE:
+            if key in self.data:
+                Setting.objects.filter(key=key).update(value=value, updated_at=datetime.now())
+            else:
+                Setting.objects.create(key=key, value=value)
 
         self.data[key] = value
 
