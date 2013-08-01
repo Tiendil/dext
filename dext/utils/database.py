@@ -9,7 +9,7 @@ def raw_save(record):
     args = []
     for j, field in enumerate(record._meta.fields):
         sql.extend(['"%s"' % field.column, ' = ', '%s'])
-        args.append(getattr(record, field.attname))
+        args.append(field.get_prep_value(getattr(record, field.attname)))
         if j != len(record._meta.fields) - 1:
             sql.append(',')
 
