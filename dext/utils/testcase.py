@@ -1,17 +1,32 @@
 # coding: utf-8
+import functools
 
 from StringIO import StringIO
 
 from django.core.handlers.wsgi import WSGIRequest
 from django.test import TestCase as DjangoTestCase
 from django.contrib.auth.models import AnonymousUser
+from django.test.client import RequestFactory
 
 from dext.utils import s11n
+
+def make_request_decorator(method):
+
+    @functools.wraps(method)
+    def make_request_wrapper(self, url, meta={}, user=None, session=None):
+        request = method(self, url, meta=meta)
+        request.user = user if user is not None else AnonymousUser()
+        request.session = session if session is not None else {}
+        return request
+
+    return make_request_wrapper
+
 
 class TestCase(DjangoTestCase):
 
     def setUp(self):
-        pass
+        self.request_factory = RequestFactory()
+
 
     def tearDown(self):
         pass
@@ -103,3 +118,42 @@ class TestCase(DjangoTestCase):
 
     def post_ajax_json(self, url, data=None):
         return self.client.post(url, data if data else {}, HTTP_ACCEPT='text/json', HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+
+    @make_request_decorator
+    def make_request_html(self, url, meta={}):
+        _meta = {'HTTP_ACCEPT': 'text/html'}
+        _meta.update(meta)
+        return self.request_factory.get(url, **_meta)
+
+    @make_request_decorator
+    def make_request_xml(self, url, meta={}):
+        _meta = {'HTTP_ACCEPT': 'text/xml'}
+        _meta.update(meta)
+        return self.request_factory.get(url, **_meta)
+
+    @make_request_decorator
+    def make_request_ajax_json(self, url, meta={}):
+        _meta = {'HTTP_ACCEPT': 'text/json',
+                 'HTTP_X_REQUESTED_WITH': 'XMLHttpRequest'}
+        _meta.update(meta)
+        return self.request_factory.get(url, **_meta)
+
+    @make_request_decorator
+    def make_request_ajax_html(self, url, meta={}):
+        _meta = {'HTTP_ACCEPT': 'text/html',
+                 'HTTP_X_REQUESTED_WITH': 'XMLHttpRequest'}
+        _meta.update(meta)
+        return self.request_factory.get(url, **_meta)
+
+    @make_request_decorator
+    def make_post_xml(self, url, meta={}):
+        _meta = {'HTTP_ACCEPT': 'text/xml'}
+        _meta.update(meta)
+        return self.request_factory.post(url, **_meta)
+
+    @make_request_decorator
+    def make_post_ajax_json(self, url, data=None, meta={}):
+        _meta = {'HTTP_ACCEPT': 'text/json',
+                 'HTTP_X_REQUESTED_WITH': 'XMLHttpRequest'}
+        _meta.update(meta)
+        return self.request_factory.post(url, data if data else {}, **_meta)
