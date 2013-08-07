@@ -4,7 +4,7 @@ import functools
 from StringIO import StringIO
 
 from django.core.handlers.wsgi import WSGIRequest
-from django.test import TestCase as DjangoTestCase
+from django.test import TestCase as DjangoTestCase, TransactionTestCase as DjangoTransactionTestCase
 from django.contrib.auth.models import AnonymousUser
 from django.test.client import RequestFactory
 
@@ -22,14 +22,7 @@ def make_request_decorator(method):
     return make_request_wrapper
 
 
-class TestCase(DjangoTestCase):
-
-    def setUp(self):
-        self.request_factory = RequestFactory()
-
-
-    def tearDown(self):
-        pass
+class TestCaseMixin(object):
 
     def fake_request(self, path='/', user=None, method='GET', csrf=None, ajax=False):
         request = WSGIRequest( { 'REQUEST_METHOD': method.upper(),
@@ -157,3 +150,19 @@ class TestCase(DjangoTestCase):
                  'HTTP_X_REQUESTED_WITH': 'XMLHttpRequest'}
         _meta.update(meta)
         return self.request_factory.post(url, data if data else {}, **_meta)
+
+
+class TestCase(DjangoTestCase, TestCaseMixin):
+    def setUp(self):
+        self.request_factory = RequestFactory()
+
+    def tearDown(self):
+        pass
+
+
+class TransactionTestCase(DjangoTransactionTestCase, TestCaseMixin):
+    def setUp(self):
+        self.request_factory = RequestFactory()
+
+    def tearDown(self):
+        pass
