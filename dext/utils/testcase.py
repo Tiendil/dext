@@ -100,6 +100,9 @@ class TestCaseMixin(object):
     def request_xml(self, url):
         return self.client.get(url, HTTP_ACCEPT='text/xml')
 
+    def request_json(self, url):
+        return self.client.get(url, HTTP_ACCEPT='text/json')
+
     def request_ajax_json(self, url):
         return self.client.get(url, HTTP_ACCEPT='text/json', HTTP_X_REQUESTED_WITH='XMLHttpRequest')
 

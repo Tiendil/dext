@@ -2,8 +2,7 @@
 
 import functools
 
-
-def validator(code=None, message=None, response_type=None, status_code=200):
+def validator(code=None, message=None, response_type=None, status_code=200, raw=False):
 
     @functools.wraps(validator)
     def validator_decorator(checker):
@@ -18,6 +17,8 @@ def validator(code=None, message=None, response_type=None, status_code=200):
                 def view_wrapper(resource, **kwargs):
 
                     if not checker(resource, **kwargs):
+                        if raw:
+                            return resource.error(code=code, messages=message)
                         return resource.auto_error(code=code, message=message,  response_type=response_type, status_code=status_code)
 
                     return view(resource, **kwargs)
@@ -31,7 +32,10 @@ def validator(code=None, message=None, response_type=None, status_code=200):
     return validator_decorator
 
 
-def validate_argument(argument_name, checker, code_prefix=None, message=None, response_type=None):
+def validate_argument(argument_name, checker, code_prefix=None, message=None, response_type=None, raw=False):
+
+    wrong_format = '%s.%s.wrong_format' % (code_prefix, argument_name)
+    not_found = '%s.%s.not_found' % (code_prefix, argument_name)
 
     @functools.wraps(validate_argument)
     def view_decorator(view):
@@ -45,10 +49,14 @@ def validate_argument(argument_name, checker, code_prefix=None, message=None, re
             try:
                 value = checker(kwargs[argument_name])
             except:
-                return resource.auto_error(code='%s.%s.wrong_format' % (code_prefix, argument_name), message=message, response_type=response_type)
+                if raw:
+                    return resource.error(code=wrong_format, messages=message)
+                return resource.auto_error(code=wrong_format, message=message, response_type=response_type)
 
             if value is None:
-                return resource.auto_error(code='%s.%s.not_found' % (code_prefix, argument_name), message=message, response_type=response_type, status_code=404)
+                if raw:
+                    return resource.error(code=not_found, messages=message)
+                return resource.auto_error(code=not_found, message=message, response_type=response_type, status_code=404)
 
             kwargs[argument_name] = value
 
@@ -59,7 +67,10 @@ def validate_argument(argument_name, checker, code_prefix=None, message=None, re
     return view_decorator
 
 
-def validate_argument_with_resource(argument_name, checker, code_prefix=None, message=None, response_type=None):
+def validate_argument_with_resource(argument_name, checker, code_prefix=None, message=None, response_type=None, raw=False):
+
+    wrong_format = '%s.%s.wrong_format' % (code_prefix, argument_name)
+    not_found = '%s.%s.not_found' % (code_prefix, argument_name)
 
     @functools.wraps(validate_argument_with_resource)
     def view_decorator(view):
@@ -73,10 +84,14 @@ def validate_argument_with_resource(argument_name, checker, code_prefix=None, me
             try:
                 value = checker(resource, kwargs[argument_name])
             except:
-                return resource.auto_error(code='%s.%s.wrong_format' % (code_prefix, argument_name), message=message, response_type=response_type)
+                if raw:
+                    return resource.error(code=wrong_format, messages=message)
+                return resource.auto_error(code=wrong_format, message=message, response_type=response_type)
 
             if value is None:
-                return resource.auto_error(code='%s.%s.not_found' % (code_prefix, argument_name), message=message, response_type=response_type, status_code=404)
+                if raw:
+                    return resource.error(code=not_found, messages=message)
+                return resource.auto_error(code=not_found, message=message, response_type=response_type, status_code=404)
 
             kwargs[argument_name] = value
 

@@ -200,23 +200,30 @@ class BaseResource(object):
         return response
 
     def json_ok(self, data=None, charset='utf-8'):
+        return self.json(charset=charset, **self.ok(data=data))
+
+    def ok(self, data=None):
         if data is None:
-            return self.json(status='ok', charset=charset)
-        return self.json(status='ok', data=data, charset=charset)
+            return {'status': 'ok'}
+        return {'status': 'ok', 'data': data}
 
     def json_processing(self, status_url, charset='utf-8'):
         return self.json(status='processing', status_url=status_url, charset=charset)
 
     def json_error(self, code, messages=None, charset='utf-8'):
+        data = self.error(code=code, messages=messages)
+        return self.json(charset=charset, **data)
+
+    def error(self, code, messages=None):
         data = {'status': 'error',
-                'code': code,
-                'charset': charset}
+                'code': code}
+
         if isinstance(messages, basestring):
             data['error'] = messages
         else:
             data['errors'] = messages
 
-        return self.json(**data)
+        return data
 
     def auto_error(self, code, message, template=None, status_code=200, response_type=None, charset='utf-8'):
 
