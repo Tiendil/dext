@@ -70,8 +70,12 @@ def protector(uuid, directory=utils_settings.PID_DIRECTORY, directory_mode=utils
 
     return decorator
 
-def force_kill(uuid, directory=utils_settings.PID_DIRECTORY):
-    process_id = get(uuid, directory)
+def force_kill(uid, directory=utils_settings.PID_DIRECTORY):
+    process_id = get(uid, directory)
+
     if process_id is not None:
-        os.kill(process_id, signal.SIGKILL)
-        free(uuid, directory)
+        try:
+            os.kill(process_id, signal.SIGKILL)
+        except OSError:
+            pass
+        free(uid, directory)
