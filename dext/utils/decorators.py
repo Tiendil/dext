@@ -1,33 +1,8 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
 import functools
 
-from django.db import transaction
 from django.conf import settings as project_settings
 from django.http import Http404
-
-class FakeContextManager(object):
-
-    def __enter__(self): return None
-    def __exit__(self, type, value, traceback): return None
-
-def nested_commit_on_success(func=None):
-
-    commit_on_success = transaction.commit_on_success(func)
-
-    if func is None:
-        if transaction.is_managed():
-            return FakeContextManager()
-        else:
-            return commit_on_success
-
-    @functools.wraps(func)
-    def _nested_commit_on_success(*args, **kwds):
-        if transaction.is_managed():
-            return func(*args,**kwds)
-        else:
-            return commit_on_success(*args,**kwds)
-
-    return _nested_commit_on_success
 
 
 def debug_required(func):
