@@ -1,5 +1,6 @@
 # coding: utf-8
 import functools
+import contextlib
 
 from StringIO import StringIO
 
@@ -93,6 +94,19 @@ class TestCaseMixin(object):
 
     def check_response_redirect(self, response, test_url, status_code=302, target_status_code=200):
         self.assertRedirects(response, test_url, status_code=status_code, target_status_code=target_status_code)
+
+    @contextlib.contextmanager
+    def check_not_changed(self, callback):
+        old_value = callback()
+        yield
+        self.assertEqual(callback(), old_value)
+
+    @contextlib.contextmanager
+    def check_delta(self, callback, delta):
+        old_value = callback()
+        yield
+        self.assertEqual(callback() - old_value, delta)
+
 
     def request_html(self, url):
         return self.client.get(url, HTTP_ACCEPT='text/html')
