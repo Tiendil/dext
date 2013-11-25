@@ -102,6 +102,12 @@ class TestCaseMixin(object):
         self.assertEqual(callback(), old_value)
 
     @contextlib.contextmanager
+    def check_changed(self, callback):
+        old_value = callback()
+        yield
+        self.assertNotEqual(callback(), old_value)
+
+    @contextlib.contextmanager
     def check_delta(self, callback, delta):
         old_value = callback()
         yield
