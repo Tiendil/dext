@@ -207,8 +207,12 @@ class BaseResource(object):
             return {'status': 'ok'}
         return {'status': 'ok', 'data': data}
 
+    def processing(self, status_url):
+        return {'status': 'processing',
+                'status_url': status_url}
+
     def json_processing(self, status_url, charset='utf-8'):
-        return self.json(status='processing', status_url=status_url, charset=charset)
+        return self.json(charset=charset, **self.processing(status_url=status_url))
 
     def json_error(self, code, messages=None, charset='utf-8'):
         data = self.error(code=code, messages=messages)

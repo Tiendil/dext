@@ -35,3 +35,9 @@ def timestamp(value):
 @jinjaglobal
 def now():
     return datetime.datetime.now()
+
+@jinjafilter
+def up_first(value):
+    if value:
+        return value[0].upper() + value[1:]
+    return value
