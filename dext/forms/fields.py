@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
 import functools
 
 from django import forms
@@ -68,7 +68,23 @@ class IntegerField(forms.IntegerField): pass
 class ChoiceField(forms.ChoiceField): pass
 
 @pgf
-class TypedChoiceField(forms.TypedChoiceField): pass
+class TypedChoiceField(forms.TypedChoiceField):
+
+    def __init__(self, *argv, **kwargs):
+        if 'coerce' in kwargs:
+            kwargs['coerce'] = self.coerce_wrapper(kwargs['coerce'])
+        super(TypedChoiceField, self).__init__(*argv, **kwargs)
+
+    @classmethod
+    def coerce_wrapper(cls, coerce_method):
+        @functools.wraps(coerce_method)
+        def wrapper(value):
+            try:
+                return coerce_method(value)
+            except:
+                raise forms.ValidationError(u'Неверный формат поля')
+
+        return wrapper
 
 @pgf
 class MultipleChoiceField(forms.MultipleChoiceField): pass
