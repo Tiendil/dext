@@ -113,6 +113,18 @@ class TestCaseMixin(object):
         yield
         self.assertEqual(callback() - old_value, delta)
 
+    @contextlib.contextmanager
+    def check_increased(self, callback):
+        old_value = callback()
+        yield
+        self.assertTrue(callback() > old_value)
+
+    @contextlib.contextmanager
+    def check_decreased(self, callback):
+        old_value = callback()
+        yield
+        self.assertTrue(callback() < old_value)
+
 
     def request_html(self, url):
         return self.client.get(url, HTTP_ACCEPT='text/html')
