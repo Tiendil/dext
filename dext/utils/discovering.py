@@ -28,9 +28,9 @@ def discover_classes_in_module(module, base_class):
     return discover_classes(module_variables(module), base_class)
 
 
-def automatic_discover_in_apps(container, module_name):
+def automatic_discover(container, module_name):
 
-    @functools.wraps(automatic_discover_in_apps)
+    @functools.wraps(automatic_discover)
     def decorator(function):
 
         @functools.wraps(function)
