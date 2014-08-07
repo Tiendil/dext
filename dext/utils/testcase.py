@@ -89,6 +89,9 @@ class TestCaseMixin(object):
         if status_url:
             self.assertEqual(data['status_url'], status_url)
 
+    def check_js_ok(self, response, status_code=200, texts=[], content_type='application/x-javascript', encoding='utf-8', body=None):
+        self.check_html_ok(response, status_code=status_code, texts=texts, content_type=content_type, encoding=encoding)
+
     def check_redirect(self, requested_url, test_url, status_code=302, target_status_code=200):
         self.check_response_redirect(self.request_html(requested_url), test_url, status_code=status_code, target_status_code=target_status_code)
 
@@ -129,6 +132,9 @@ class TestCaseMixin(object):
     def request_html(self, url):
         return self.client.get(url, HTTP_ACCEPT='text/html')
 
+    def request_js(self, url):
+        return self.client.get(url, HTTP_ACCEPT='application/x-javascript')
+
     def request_xml(self, url):
         return self.client.get(url, HTTP_ACCEPT='text/xml')
 
@@ -143,6 +149,9 @@ class TestCaseMixin(object):
 
     def post_xml(self, url):
         return self.client.post(url, HTTP_ACCEPT='text/xml')
+
+    def post_html(self, url):
+        return self.client.post(url, HTTP_ACCEPT='text/html')
 
     def post_ajax_json(self, url, data=None):
         return self.client.post(url, data if data else {}, HTTP_ACCEPT='text/json', HTTP_X_REQUESTED_WITH='XMLHttpRequest')

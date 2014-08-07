@@ -31,16 +31,13 @@ def create_handler_view(resource_class, handler):
         info = method._handler_info
 
         args = info['expected']['args']
-        defaults = info['expected']['defaults']
+        # defaults = info['expected']['defaults']
 
         arguments = {}
+
         for arg in args:
-            if arg != 'self':
-                if arg in request.GET:
-                    arguments[arg] = request.GET.get(arg)
-                elif defaults and arg not in defaults:
-                    raise ResourceException('can not dispatch url for handler "%s:%s" - value for argument "%s" in view "%s" does not defined' %
-                                            (resource.__class__.__name__, handler_path, arg, method))
+            if arg != 'self' and arg in request.GET:
+                arguments[arg] = request.GET.get(arg)
 
         if method:
             return method(**arguments)

@@ -32,10 +32,11 @@ def validator(code=None, message=None, response_type=None, status_code=200, raw=
     return validator_decorator
 
 
-def validate_argument(argument_name, checker, code_prefix=None, message=None, response_type=None, raw=False):
+def validate_argument(argument_name, checker, code_prefix=None, message=None, response_type=None, raw=False, required=False):
 
     wrong_format = '%s.%s.wrong_format' % (code_prefix, argument_name)
     not_found = '%s.%s.not_found' % (code_prefix, argument_name)
+    not_specified = '%s.%s.not_specified' % (code_prefix, argument_name)
 
     @functools.wraps(validate_argument)
     def view_decorator(view):
@@ -44,6 +45,10 @@ def validate_argument(argument_name, checker, code_prefix=None, message=None, re
         def view_wrapper(resource, **kwargs):
 
             if argument_name not in kwargs:
+                if required:
+                    if raw:
+                        return resource.error(code=not_specified, messages=message)
+                    return resource.auto_error(code=not_specified, message=message, response_type=response_type)
                 return view(resource, **kwargs)
 
             try:

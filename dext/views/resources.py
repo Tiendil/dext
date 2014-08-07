@@ -171,6 +171,9 @@ class BaseResource(object):
     def string(self, string, charset='utf-8'):
         return HttpResponse(string, mimetype='text/html; charset=%s' % charset)
 
+    def js(self, string, charset='utf-8'):
+        return HttpResponse(string, mimetype='application/x-javascript; charset=%s' % charset)
+
     def xml(self, string, charset='utf-8'):
         return HttpResponse(string, mimetype='text/xml; charset=%s' % charset)
 
@@ -183,7 +186,7 @@ class BaseResource(object):
     def rdf(self, string, charset='utf-8'):
         return HttpResponse(string, mimetype='application/rdf+xml; charset=%s' % charset)
 
-    def template(self, template_name, context={}, status_code=200, charset='utf-8'):
+    def template(self, template_name, context={}, status_code=200, charset='utf-8', mimetype='text/html'):
         full_context = {'resource': self}
         full_context.update(context)
 
@@ -192,15 +195,15 @@ class BaseResource(object):
         if status_code == 404:
             response_class = HttpResponseNotFound
 
-        return response_class(render.template(template_name, full_context, self.request), mimetype='text/html; charset=%s' % charset)
+        return response_class(render.template(template_name, full_context, self.request), mimetype='%s; charset=%s' % (mimetype, charset))
 
 
-    def json(self, charset='utf-8', **kwargs):
-        response = HttpResponse(s11n.to_json(kwargs), mimetype='application/json; charset=%s' % charset)
+    def json(self, charset='utf-8', mimetype='application/json', **kwargs):
+        response = HttpResponse(s11n.to_json(kwargs), mimetype='%s; charset=%s' % (mimetype, charset))
         return response
 
-    def json_ok(self, data=None, charset='utf-8'):
-        return self.json(charset=charset, **self.ok(data=data))
+    def json_ok(self, data=None, charset='utf-8', mimetype='application/json'):
+        return self.json(mimetype=mimetype, charset=charset, **self.ok(data=data))
 
     def ok(self, data=None):
         if data is None:
@@ -211,12 +214,15 @@ class BaseResource(object):
         return {'status': 'processing',
                 'status_url': status_url}
 
-    def json_processing(self, status_url, charset='utf-8'):
-        return self.json(charset=charset, **self.processing(status_url=status_url))
+    def json_processing(self, status_url, mimetype='application/json', charset='utf-8'):
+        return self.json(mimetype=mimetype, charset=charset, **self.processing(status_url=status_url))
 
-    def json_error(self, code, messages=None, charset='utf-8'):
+    def json_error(self, code, messages=None, mimetype='application/json', charset='utf-8'):
         data = self.error(code=code, messages=messages)
-        return self.json(charset=charset, **data)
+        return self.json(mimetype=mimetype, charset=charset, **data)
+
+    def js_error(self, code, messages=None, mimetype='application/x-javascript', charset='utf-8'):
+        return self.json_error(code=code, messages=messages, mimetype=mimetype, charset=charset)
 
     def error(self, code, messages=None):
         data = {'status': 'error',
@@ -239,6 +245,9 @@ class BaseResource(object):
                 return self.template(self.DIALOG_ERROR_TEMPLATE, {'msg': message, 'error_code': code }, status_code=status_code)
             else:
                 return self.template(self.ERROR_TEMPLATE, {'msg': message, 'error_code': code }, status_code=status_code)
+
+        if response_type == 'js':
+            return self.js_error(code, message, charset=charset)
 
         return self.json_error(code, message, charset=charset)
 
