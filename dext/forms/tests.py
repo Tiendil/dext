@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from dext.utils import testcase
+from dext.common.utils import testcase
 
 from dext.forms.fields import EmailField
 

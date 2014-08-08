@@ -2,7 +2,7 @@
 
 import os
 
-from dext.utils import s11n
+from dext.common.utils import s11n
 
 
 class MetaConfig(object):

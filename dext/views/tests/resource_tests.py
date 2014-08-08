@@ -2,7 +2,7 @@
 
 from django.http import HttpResponseRedirect, HttpResponsePermanentRedirect
 
-from dext.utils.testcase import TestCase
+from dext.common.utils.testcase import TestCase
 
 from dext.views.tests.helpers import ResourceTestClass, EmptyResourceTestClass
 

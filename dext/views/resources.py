@@ -5,8 +5,8 @@ import functools
 from django.http import Http404, HttpResponse, HttpResponseNotFound, HttpResponseRedirect, HttpResponsePermanentRedirect
 from django.middleware import csrf
 
-from dext.utils import s11n, memoize
-from dext.utils.response import mime_type_to_response_type
+from dext.common.utils import s11n, memoize
+from dext.common.utils.response import mime_type_to_response_type
 from dext.jinja2 import render
 
 class ResourceException(Exception): pass

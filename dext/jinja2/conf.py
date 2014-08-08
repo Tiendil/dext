@@ -2,9 +2,8 @@
 
 from django.conf import settings as project_settings
 
-from dext.utils.app_settings import app_settings
+from dext.common.utils.app_settings import app_settings
 
-settings = app_settings('DJEXT_JINJA2', 
+settings = app_settings('DJEXT_JINJA2',
                         TEMPLATE_DIRS=project_settings.TEMPLATE_DIRS
                         )
-

@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from dext.utils import testcase
+from dext.common.utils import testcase
 from dext.settings import Settings, SettingsException
 from dext.settings.models import Setting
 

@@ -9,7 +9,7 @@ from django.test import TestCase as DjangoTestCase, TransactionTestCase as Djang
 from django.contrib.auth.models import AnonymousUser
 from django.test.client import RequestFactory
 
-from dext.utils import s11n
+from dext.common.utils import s11n
 
 def make_request_decorator(method):
 

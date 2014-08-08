@@ -3,7 +3,7 @@ import functools
 
 from django import forms
 
-from dext.utils import s11n, logic
+from dext.common.utils import s11n, logic
 
 def strip_on_clean(cls):
 

@@ -4,7 +4,7 @@ import time
 import jinja2
 
 from dext.jinja2.decorators import jinjafilter, jinjaglobal
-from dext.utils import urls
+from dext.common.utils import urls
 
 @jinjaglobal
 def url(*args, **kwargs): return urls.url(*args, **kwargs)

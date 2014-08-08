@@ -3,7 +3,7 @@ import os
 import signal
 import functools
 
-from dext.utils.conf import utils_settings
+from dext.common.utils.conf import utils_settings
 
 # TODO: make an atomic operations (see, lockfile package)
 
@@ -69,6 +69,7 @@ def protector(uuid, directory=utils_settings.PID_DIRECTORY, directory_mode=utils
         return wrapper
 
     return decorator
+
 
 def force_kill(uid, directory=utils_settings.PID_DIRECTORY):
     process_id = get(uid, directory)
