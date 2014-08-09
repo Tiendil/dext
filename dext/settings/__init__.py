@@ -16,7 +16,8 @@ class Settings(object):
         self.initialized = False
 
     def _load_data(self):
-        return {record.key:record.value for record in Setting.objects.all()}
+        return dict(Setting.objects.all().values_list('key', 'value'))
+        # return {record.key:record.value for record in Setting.objects.all()}
 
     def refresh(self, force=False):
         self.initialized = True

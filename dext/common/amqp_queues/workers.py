@@ -1,6 +1,7 @@
 # coding: utf-8
 
 import sys
+import time
 import Queue
 
 from django.conf import settings as project_settings
@@ -8,6 +9,8 @@ from django.utils.log import getLogger
 
 from dext.common.amqp_queues import exceptions
 from dext.common.amqp_queues.connection import connection
+
+from dext.settings import settings
 
 
 def run_with_newrelic(method, method_data):
@@ -25,6 +28,9 @@ class BaseWorker(object):
     STOP_SIGNAL_REQUIRED = True
     RECEIVE_ANSWERS = False
     LOGGER_PREFIX = None
+    REFRESH_SETTINGS = True
+    GET_CMD_TIMEOUT = 9999999
+    NO_CMD_TIMEOUT = 0
 
     @classmethod
     def get_next_number(cls):
@@ -56,10 +62,26 @@ class BaseWorker(object):
     @property
     def pid(self): return self.name
 
-    def run_simple(self):
+    def run(self):
         while not self.exception_raised and not self.stop_required:
-            cmd = self.command_queue.get(block=True)
-            self.process_cmd(cmd.payload)
+            try:
+                if self.GET_CMD_TIMEOUT > 0:
+                    cmd = self.command_queue.get(block=True, timeout=self.GET_CMD_TIMEOUT)
+                else:
+                    cmd = self.command_queue.get_nowait()
+
+                if self.REFRESH_SETTINGS:
+                    settings.refresh()
+                self.process_cmd(cmd.payload)
+            except Queue.Empty:
+                if self.REFRESH_SETTINGS:
+                    settings.refresh()
+                self.process_no_cmd()
+                if self.NO_CMD_TIMEOUT:
+                    time.sleep(self.NO_CMD_TIMEOUT)
+
+    def process_no_cmd(self):
+        pass
 
     def close_queries(self):
         pass
@@ -72,7 +94,7 @@ class BaseWorker(object):
         attributes = set(dir(self))
 
         for attribute in attributes:
-            if attribute in ['process_cmd', 'cmd_answer']:
+            if attribute in ['process_cmd', 'cmd_answer', 'process_no_cmd']:
                 continue
 
             if attribute.startswith('process_'):

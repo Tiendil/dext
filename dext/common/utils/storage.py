@@ -16,6 +16,9 @@ class BaseStorage(object):
     def refresh(self):
         raise NotImplementedError()
 
+    def has_objects(self):
+        raise NotImplementedError()
+
     def __init__(self):
         self.clear()
         self._postpone_version_update_nesting = 0
@@ -129,6 +132,9 @@ class Storage(BaseStorage):
         self._version = None
         self._update_version_requested = False
 
+    def has_objects(self):
+        return bool(self._data)
+
     def save_all(self):
         with self.postpone_version_update():
             for record in self._data.values():
@@ -171,3 +177,6 @@ class SingleStorage(BaseStorage):
         self._item = None
         self._version = None
         self._update_version_requested = False
+
+    def has_objects(self):
+        return self._item is not None
