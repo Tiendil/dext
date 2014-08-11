@@ -222,7 +222,10 @@ class BaseResource(object):
         return self.json(mimetype=mimetype, charset=charset, **data)
 
     def js_error(self, code, messages=None, mimetype='application/x-javascript', charset='utf-8'):
-        return self.json_error(code=code, messages=messages, mimetype=mimetype, charset=charset)
+        data = self.error(code=code, messages=messages)
+        response = HttpResponse(u'function DextErrorMessage(){return %s;};' % s11n.to_json(data),
+                                mimetype='%s; charset=%s' % (mimetype, charset))
+        return response
 
     def error(self, code, messages=None):
         data = {'status': 'error',
