@@ -5,7 +5,7 @@ import functools
 from django.http import Http404, HttpResponse, HttpResponseNotFound, HttpResponseRedirect, HttpResponsePermanentRedirect
 from django.middleware import csrf
 
-from dext.common.utils import s11n, memoize
+from dext.common.utils import s11n, memoize, logic
 from dext.common.utils.response import mime_type_to_response_type
 from dext.jinja2 import render
 
@@ -157,16 +157,7 @@ class BaseResource(object):
 
     @property
     def user_ip(self):
-        """Returns the IP of the request, accounting for the possibility of being
-        behind a proxy.
-        """
-        ip = self.request.META.get("HTTP_X_FORWARDED_FOR", None)
-        if ip:
-            # X_FORWARDED_FOR returns client1, proxy1, proxy2,...
-            ip = ip.split(", ")[0]
-        else:
-            ip = self.request.META.get("REMOTE_ADDR", "")
-        return ip
+        return logic.get_ip_from_request(self.request)
 
     def string(self, string, charset='utf-8'):
         return HttpResponse(string, mimetype='text/html; charset=%s' % charset)
