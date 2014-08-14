@@ -37,3 +37,22 @@ def full_url(protocol, *args, **kwargs):
 
 def absolute_url(relative_url, protocol='http'):
     return protocol + '://' + project_settings.SITE_URL + relative_url
+
+
+def modify_url(url, query=()):
+    hash = None
+
+    if '#' in url:
+        url, hash = url.split('#')
+
+    if query:
+        query = urllib.urlencode(query)
+
+        url += '&' if '?' in url else '?'
+
+        url += query
+
+    if hash:
+        url += '#' + hash
+
+    return url
