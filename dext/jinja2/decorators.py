@@ -1,4 +1,5 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
+
 
 def jinjaglobal(f):
     f._is_jinjaglobal = True

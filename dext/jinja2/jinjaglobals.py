@@ -6,6 +6,7 @@ import jinja2
 from dext.jinja2.decorators import jinjafilter, jinjaglobal
 from dext.common.utils import urls
 
+
 @jinjaglobal
 def url(*args, **kwargs): return urls.url(*args, **kwargs)
 
@@ -18,6 +19,11 @@ def absolute_url(*args, **kwargs): return urls.absolute_url(*args, **kwargs)
 @jinjaglobal
 def jmap(func, iterable):
     return map(func, iterable)
+
+@jinjaglobal
+@jinja2.contextfunction
+def get_context(context):
+    return context
 
 
 @jinjafilter

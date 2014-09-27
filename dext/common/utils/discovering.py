@@ -1,4 +1,5 @@
 # coding: utf-8
+import os
 import functools
 
 from django.conf import settings as project_settings
@@ -55,3 +56,15 @@ def get_function(function_path):
     module_path, function_name = function_path.rsplit('.', 1)
     module = import_module(module_path)
     return getattr(module, function_name)
+
+
+def discover_modules_in_directory(path, prefix, exclude=('__init__.py',)):
+
+    for name in os.listdir(path):
+        if not name.endswith('.py'):
+            continue
+
+        if name in exclude:
+            continue
+
+        yield import_module('%s.%s' % (prefix, name[:-3]))
