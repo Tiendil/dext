@@ -1,39 +1,34 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
 import jinja2
+
 from django import forms
-from . import pgf_widgets
+
 
 class FormsException(Exception): pass
 
+HTML_WIDGET_WRAPPER = u'<div class="pgf-widget control-group">%(content)s</div>'
+HTML_ERROR_CONTAINER = u'<div class="pgf-form-field-marker-%(name)s pgf-error-container alert alert-error pgf-hidden"></div>'
+
+
 def errors_container(self):
-    return jinja2.Markup('<div class="pgf-form-field-marker-%s pgf-error-container alert alert-error pgf-hidden"></div>' % self.name)
+    return jinja2.Markup(HTML_ERROR_CONTAINER % {'name': self.name})
 
 
 def html(self):
-
     if hasattr(self.field, 'html'):
-        return self.field.html(self)
-    return jinja2.Markup(self.label_tag()) + jinja2.Markup(self) + self.errors_container
+        return jinja2.Markup(self.field.html(self))
+    return jinja2.Markup(self.label_tag(label_suffix=getattr(self.field, 'LABEL_SUFFIX', None))) + jinja2.Markup(self) + self.errors_container
 
 def widget(self):
-    template = jinja2.Markup(u'<div data-widget-name="%(name)s" data-widget-type="%(type)s" class="pgf-widget control-group">%(content)s</div>')
-    html =  template % {'content': self.html,
-                        'name': self.name,
-                        'type': self.field.pgf['type'] if 'type' in self.field.pgf else ''}
+    template = jinja2.Markup(HTML_WIDGET_WRAPPER)
+    html =  template % {'content': self.html}
     html = jinja2.Markup(html)
     return html
 
-def pgf_widget(self):
-    try:
-        html = pgf_widgets.widgets[self.field.pgf['type']](self)
-    except Exception, e:
-        raise FormsException(unicode(e))
-    return jinja2.Markup(html)
 
 forms.forms.BoundField.html = property(html)
 forms.forms.BoundField.errors_container = property(errors_container)
 forms.forms.BoundField.widget = property(widget)
-forms.forms.BoundField.pgf_widget = property(pgf_widget)
 
 
 class CleanedDataAccessor(object):
@@ -53,15 +48,28 @@ class CleanedDataAccessor(object):
 
 class Form(forms.Form):
 
-    def __iter__(self):
-        return super(Form, self).__iter__()
-
-    def __getitem__(self, name):
-        return super(Form, self).__getitem__(name)
-
     @property
     def errors_container(self):
         return jinja2.Markup('<div class="pgf-form-marker pgf-error-container alert alert-error pgf-hidden"></div>')
+
+
+    @property
+    def errors(self):
+
+        errors = super(Form, self).errors
+
+        for name, field in self.fields.items():
+
+            if not hasattr(field, 'get_extra_errors'):
+                continue
+
+            value = field.widget.value_from_datadict(self.data, self.files, self.add_prefix(name))
+
+            extra_errors = field.get_extra_errors(value)
+
+            errors.update(extra_errors)
+
+        return errors
 
 
     @property
