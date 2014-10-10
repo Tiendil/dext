@@ -16,9 +16,6 @@ class BaseStorage(object):
     def refresh(self):
         raise NotImplementedError()
 
-    def has_objects(self):
-        raise NotImplementedError()
-
     def __init__(self):
         self.clear()
         self._postpone_version_update_nesting = 0
@@ -30,12 +27,7 @@ class BaseStorage(object):
         return self._version
 
     def sync(self, force=False):
-        if self.SETTINGS_KEY not in settings:
-            self.update_version()
-            self.refresh()
-            return
-
-        if self._version != settings[self.SETTINGS_KEY]:
+        if self._version != settings.get(self.SETTINGS_KEY):
             self.refresh()
             return
 
@@ -92,7 +84,7 @@ class Storage(BaseStorage):
     def refresh(self):
         self.clear()
 
-        self._version = settings[self.SETTINGS_KEY]
+        self._version = settings.get(self.SETTINGS_KEY)
 
         for model in self._get_all_query():
             self.add_item(model.id, self._construct_object(model))
@@ -132,9 +124,6 @@ class Storage(BaseStorage):
         self._version = None
         self._update_version_requested = False
 
-    def has_objects(self):
-        return bool(self._data)
-
     def save_all(self):
         with self.postpone_version_update():
             for record in self._data.values():
@@ -173,10 +162,10 @@ class SingleStorage(BaseStorage):
         self._item = item
         self.update_version()
 
+    def _construct_zero_item(self):
+        raise NotImplementedError()
+
     def clear(self):
-        self._item = None
+        self._item = self._construct_zero_item()
         self._version = None
         self._update_version_requested = False
-
-    def has_objects(self):
-        return self._item is not None
