@@ -5,8 +5,7 @@ from django.conf import settings as project_settings
 
 
 def normalize_email(email):
-    dog_index = email.rfind('@')
-    return email[:dog_index] + email[dog_index:].lower()
+    return email.lower()
 
 
 def run_django_command(command):
