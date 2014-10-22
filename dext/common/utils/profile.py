@@ -17,7 +17,7 @@ def profile_decorator(output_file):
             try:
                 ret = prof.runcall(func, *args, **kwargs)
             except:
-                pass
+                ret = None
 
             prof.dump_stats(output_file)
 
