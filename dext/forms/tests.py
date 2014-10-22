@@ -12,4 +12,4 @@ class EmailFieldTest(testcase.TestCase):
         self.field = EmailField()
 
     def test_clean__right_dog(self):
-        self.assertEqual(self.field.clean('Bla@Bla.blA'), 'Bla@bla.bla')
+        self.assertEqual(self.field.clean('Bla@Bla.blA'), 'bla@bla.bla')
