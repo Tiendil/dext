@@ -34,6 +34,15 @@ class TestCaseMixin(object):
         request.user = AnonymousUser() if user is None else user
         return request
 
+    def check_logged_in(self, account=None):
+        self.assertIn('_auth_user_id', self.client.session)
+
+        if account:
+            self.assertEqual(account.id, self.client.session['_auth_user_id'])
+
+    def check_logged_out(self):
+        self.assertNotIn('_auth_user_id', self.client.session)
+
     def check_html_ok(self, response, status_code=200, texts=[], content_type='text/html', encoding='utf-8', body=None):
         self.assertEqual(response.status_code, status_code)
 
