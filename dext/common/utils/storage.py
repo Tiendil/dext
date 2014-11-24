@@ -87,7 +87,8 @@ class Storage(BaseStorage):
         self._version = settings.get(self.SETTINGS_KEY)
 
         for model in self._get_all_query():
-            self.add_item(model.id, self._construct_object(model))
+            item = self._construct_object(model)
+            self.add_item(item.id, item)
 
     def __getitem__(self, id_):
         self.sync()
@@ -118,6 +119,8 @@ class Storage(BaseStorage):
         self.sync()
 
         return self._data.values()
+
+    def __len__(self): return len(self._data)
 
     def clear(self):
         self._data = {}

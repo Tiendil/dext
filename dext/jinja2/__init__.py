@@ -1,6 +1,7 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
 
-from .renderer import get_jinjaglobals, render
+from dext.jinja2.renderer import get_jinjaglobals, render
+
 
 def autodiscover():
 
@@ -20,5 +21,3 @@ def autodiscover():
         except:
             if module_has_submodule(mod, 'jinjaglobals'):
                 raise
-
-

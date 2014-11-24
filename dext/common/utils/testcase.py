@@ -74,6 +74,7 @@ class TestCaseMixin(object):
 
         self.assertEqual(response.status_code, 200)
         content = s11n.from_json(response.content)
+
         self.assertEqual(content['status'], 'ok')
 
         if data is not None:

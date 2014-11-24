@@ -1,12 +1,15 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
 import jinja2
 
 
 from django.conf import settings as project_settings
 from django.template import RequestContext
 
-from .conf import settings as jinja2_settings
-from . import jinjaglobals
+from dext.jinja2.conf import settings as jinja2_settings
+from dext.jinja2 import jinjaglobals
+
+from dext.common.utils.views import BaseViewProcessor
+
 
 def get_jinjaglobals(module):
 
@@ -82,3 +85,15 @@ class Jinja2Renderer(object):
 render = Jinja2Renderer(project_settings)
 global_functions, filter_functions = get_jinjaglobals(jinjaglobals)
 render.update_globals(global_functions, filter_functions)
+
+
+
+class RenderProcessor(BaseViewProcessor):
+
+    def __init__(self, template, **kwargs):
+        super(RenderProcessor, self).__init__(**kwargs)
+        self.template = template
+
+
+    def postrocess(self, context, response):
+        return context, response

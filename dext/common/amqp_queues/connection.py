@@ -42,10 +42,10 @@ class SimpleQueue(KombuSimpleQueue):
 class SimpleBuffer(SimpleQueue):
     no_ack = True
     queue_opts = dict(durable=False,
-                      auto_delete=True)
+                      auto_delete=False)
     exchange_opts = dict(durable=False,
                          delivery_mode='transient',
-                         auto_delete=True)
+                         auto_delete=False)
 
 
 class Connection(KombuConnection):

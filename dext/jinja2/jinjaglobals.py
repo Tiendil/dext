@@ -3,18 +3,8 @@ import datetime
 import time
 import jinja2
 
-from dext.jinja2.decorators import jinjafilter, jinjaglobal
-from dext.common.utils import urls
+from .decorators import jinjafilter, jinjaglobal
 
-
-@jinjaglobal
-def url(*args, **kwargs): return urls.url(*args, **kwargs)
-
-@jinjaglobal
-def full_url(*args, **kwargs): return urls.full_url(*args, **kwargs)
-
-@jinjaglobal
-def absolute_url(*args, **kwargs): return urls.absolute_url(*args, **kwargs)
 
 @jinjaglobal
 def jmap(func, iterable):

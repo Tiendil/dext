@@ -114,7 +114,6 @@ class HandlerInfo(object):
         return self.path == other.path
 
     def __lt__(self, other):
-        # print self.path, '|', other.path
         for l, r in zip(self.path, other.path):
             if not l: return True
             if not r: return False
@@ -236,9 +235,9 @@ class BaseResource(object):
 
         if response_type == 'html':
             if self.request.is_ajax():
-                return self.template(self.DIALOG_ERROR_TEMPLATE, {'msg': message, 'error_code': code }, status_code=status_code)
+                return self.template(self.DIALOG_ERROR_TEMPLATE, {'error_message': message, 'error_code': code }, status_code=status_code)
             else:
-                return self.template(self.ERROR_TEMPLATE, {'msg': message, 'error_code': code }, status_code=status_code)
+                return self.template(self.ERROR_TEMPLATE, {'error_message': message, 'error_code': code }, status_code=status_code)
 
         if response_type == 'js':
             return self.js_error(code, message, charset=charset)
