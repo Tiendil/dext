@@ -1,7 +1,10 @@
 # coding: utf-8
 import datetime
 import time
+import collections
+
 import jinja2
+
 
 from .decorators import jinjafilter, jinjaglobal
 
@@ -37,3 +40,7 @@ def up_first(value):
     if value:
         return value[0].upper() + value[1:]
     return value
+
+@jinjaglobal
+def is_sequence(variable):
+    return not isinstance(variable, basestring) and isinstance(variable, collections.Iterable)
