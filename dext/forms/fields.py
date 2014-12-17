@@ -64,6 +64,10 @@ class RegexField(forms.RegexField): pass
 @pgf
 class IntegerField(forms.IntegerField): pass
 
+@strip_on_clean
+@pgf
+class FloatField(forms.FloatField): pass
+
 @pgf
 class ChoiceField(forms.ChoiceField): pass
 
