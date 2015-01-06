@@ -323,13 +323,13 @@ class ArgumentProcessor(BaseViewProcessor):
             return self.post_name
 
     def raise_not_specified(self, context):
-        raise exceptions.ViewError(code='%s.%s.not_specified' % (context.dext_error_prefix, self._argument_name), message=self.error_message)
+        raise exceptions.ViewError(code='%s.%s.not_specified' % (context.dext_error_prefix, self._argument_name()), message=self.error_message)
 
     def raise_wrong_format(self, context):
-        raise exceptions.ViewError(code='%s.%s.wrong_format' % (context.dext_error_prefix, self._argument_name), message=self.error_message)
+        raise exceptions.ViewError(code='%s.%s.wrong_format' % (context.dext_error_prefix, self._argument_name()), message=self.error_message)
 
     def raise_wrong_value(self, context):
-        raise exceptions.ViewError(code='%s.%s.wrong_value' % (context.dext_error_prefix, self._argument_name), message=self.error_message)
+        raise exceptions.ViewError(code='%s.%s.wrong_value' % (context.dext_error_prefix, self._argument_name()), message=self.error_message)
 
     def preprocess(self, context):
 

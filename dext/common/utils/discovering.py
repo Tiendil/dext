@@ -35,7 +35,10 @@ def automatic_discover(container, module_name):
     def decorator(function):
 
         @functools.wraps(function)
-        def wrapper():
+        def wrapper(if_empty=False):
+            if container and if_empty:
+                return
+
             container.clear()
 
             for app in project_settings.INSTALLED_APPS:
