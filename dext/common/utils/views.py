@@ -426,8 +426,10 @@ class PageError(Page):
 
     def __init__(self, code, errors, context, **kwargs):
         if 'template' not in kwargs:
-            # TODO: errors for dialogs
-            kwargs['template'] = utils_settings.PAGE_ERROR_TEMPLATE
+            if context.django_request.is_ajax():
+                kwargs['template'] = utils_settings.DIALOG_ERROR_TEMPLATE
+            else:
+                kwargs['template'] = utils_settings.PAGE_ERROR_TEMPLATE
 
         if isinstance(errors, basestring):
             error = errors
@@ -480,16 +482,15 @@ class AjaxError(Ajax):
         self.context = context
 
     def wrap(self, context):
-        data = {}
+        data = {'status': 'error',
+                'code': self.code}
 
         if isinstance(self.errors, basestring):
             data['error'] = self.errors
         else:
             data['errors'] = self.errors
 
-        return {'status': 'error',
-                'code': self.code,
-                'data': data}
+        return data
 
 
 class AjaxProcessing(Ajax):
