@@ -90,6 +90,25 @@ class TypedChoiceField(forms.TypedChoiceField):
 
         return wrapper
 
+
+class RelationField(TypedChoiceField):
+
+    def __init__(self, *argv, **kwargs):
+        relation = kwargs.pop('relation')
+        if 'choices' not in kwargs:
+            filter = kwargs.pop('filter') if 'filter' in kwargs else lambda r: True
+            sort_key = kwargs.pop('sort_key') if 'sort_key' in kwargs else None
+
+            kwargs['choices'] = [(record, record.text) for record in relation.records if filter(record)]
+            if not kwargs.get('required', True):
+                kwargs['choices'] = [(u'', u'---')] + kwargs['choices']
+            if sort_key:
+                kwargs['choices'].sort(key=sort_key)
+        if 'coerce' not in kwargs:
+            kwargs['coerce'] = relation.get_from_name
+
+        super(RelationField, self).__init__(*argv, **kwargs)
+
 @pgf
 class MultipleChoiceField(forms.MultipleChoiceField): pass
 

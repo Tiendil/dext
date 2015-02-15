@@ -174,6 +174,7 @@ class Resource(object):
             view.path = argv
 
             view.add_processor(HttpMethodProcessor(allowed_methods=methods))
+            view.add_processor(CSRFProcessor())
 
             if view.name in self.views:
                 raise exceptions.DuplicateViewNameError(name=view.name)
@@ -237,6 +238,14 @@ class HttpMethodProcessor(BaseViewProcessor):
                                        message=u'К адресу нельзя обратиться с помощью HTTP метода "%(method)s"' % context.django_request.method)
 
         context.django_method = relations.HTTP_METHOD.index_name[context.django_request.method]
+
+
+class CSRFProcessor(BaseViewProcessor):
+    __slots__ = BaseViewProcessor.__slots__
+
+    def preprocess(self, context):
+        from django.middleware import csrf
+        context.csrf = csrf.get_token(context.django_request)
 
 
 class PermissionProcessor(BaseViewProcessor):
@@ -416,6 +425,7 @@ class Page(BaseResponse):
 
     def complete(self, context):
         from dext.jinja2 import render
+        self.content['context'] = context
         self.content = render.template(self.template, self.content, context.django_request)
         return super(Page, self).complete(context)
 

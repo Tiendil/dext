@@ -120,7 +120,13 @@ class Storage(BaseStorage):
 
         return self._data.values()
 
-    def __len__(self): return len(self._data)
+    def __len__(self):
+        self.sync()
+        return len(self._data)
+
+    def is_empty(self):
+        self.sync()
+        return bool(self._data)
 
     def clear(self):
         self._data = {}
