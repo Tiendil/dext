@@ -163,6 +163,9 @@ class TestCaseMixin(object):
     def post_html(self, url):
         return self.client.post(url, HTTP_ACCEPT='text/html')
 
+    def post_ajax_html(self, url, data=None):
+        return self.client.post(url, data if data else {}, HTTP_ACCEPT='text/html', HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+
     def post_ajax_json(self, url, data=None):
         return self.client.post(url, data if data else {}, HTTP_ACCEPT='text/json', HTTP_X_REQUESTED_WITH='XMLHttpRequest')
 

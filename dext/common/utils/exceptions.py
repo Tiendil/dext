@@ -17,6 +17,9 @@ class ViewError(DextError):
     @property
     def message(self): return self.arguments['message']
 
+    @property
+    def info(self): return self.arguments.get('info')
+
 class InternalViewError(DextError):
     pass
 
