@@ -10,14 +10,16 @@ from dext.common.utils import relations
 from dext.common.utils import s11n
 from dext.common.utils.conf import utils_settings
 
-slots = lambda *argv: tuple(argv)
+# for external code
+ViewError = exceptions.ViewError
 
 class Context(object):
 
     def __setattr__(self, name, value):
         if hasattr(self, name):
             raise exceptions.ViewError(code='internal.try_to_reassign_context_value',
-                                       message=utils_settings.DEFAUL_ERROR_MESSAGE)
+                                       message=utils_settings.DEFAUL_ERROR_MESSAGE,
+                                       info={'name': name})
         super(Context, self).__setattr__(name, value)
 
 
@@ -92,7 +94,7 @@ class View(object):
 
     def process_error(self, error, request, context):
         error_response_class = self._get_error_response_class(request)
-        return error_response_class(code=error.code, errors=error.message, context=context).complete(context)
+        return error_response_class(code=error.code, errors=error.message, context=context, info=error.info).complete(context)
 
 
     def get_url_record(self):
@@ -226,7 +228,7 @@ class BaseViewProcessor(object):
 
 
 class HttpMethodProcessor(BaseViewProcessor):
-    __slots__ = slots('allowed_methods', *BaseViewProcessor.__slots__)
+    __slots__ = ('allowed_methods', )
 
     def __init__(self, allowed_methods):
         super(HttpMethodProcessor, self).__init__()
@@ -235,13 +237,12 @@ class HttpMethodProcessor(BaseViewProcessor):
     def preprocess(self, context):
         if context.django_request.method not in self.allowed_methods:
             raise exceptions.ViewError(code=u'common.wrong_http_method',
-                                       message=u'К адресу нельзя обратиться с помощью HTTP метода "%(method)s"' % context.django_request.method)
+                                       message=u'К адресу нельзя обратиться с помощью HTTP метода "%(method)s"' % {'method': context.django_request.method})
 
         context.django_method = relations.HTTP_METHOD.index_name[context.django_request.method]
 
 
 class CSRFProcessor(BaseViewProcessor):
-    __slots__ = BaseViewProcessor.__slots__
 
     def preprocess(self, context):
         from django.middleware import csrf
@@ -249,7 +250,7 @@ class CSRFProcessor(BaseViewProcessor):
 
 
 class PermissionProcessor(BaseViewProcessor):
-    __slots__ = slots('permission', 'context_name', *BaseViewProcessor.__slots__)
+    __slots__ = ('permission', 'context_name')
 
     def __init__(self, permission, context_name):
         super(PermissionProcessor, self).__init__()
@@ -261,7 +262,6 @@ class PermissionProcessor(BaseViewProcessor):
 
 
 class AccessProcessor(BaseViewProcessor):
-    __slots__ = BaseViewProcessor.__slots__
 
     ERROR_CODE = NotImplemented
     ERROR_MESSAGE = NotImplemented
@@ -275,7 +275,7 @@ class AccessProcessor(BaseViewProcessor):
 
 
 class FormProcessor(BaseViewProcessor):
-    __slots__ = slots('error_message', 'form_class', 'context_name', *BaseViewProcessor.__slots__)
+    __slots__ = ('error_message', 'form_class', 'context_name')
 
     def __init__(self, form_class, context_name='form', **kwargs):
         super(FormProcessor, self).__init__(**kwargs)
@@ -294,7 +294,7 @@ class FormProcessor(BaseViewProcessor):
 
 
 class ArgumentProcessor(BaseViewProcessor):
-    __slots__ = slots('error_message', 'get_name', 'post_name', 'url_name', 'context_name', 'default_value', *BaseViewProcessor.__slots__)
+    __slots__ = ('error_message', 'get_name', 'post_name', 'url_name', 'context_name', 'default_value')
 
     def __init__(self, context_name, error_message=None, get_name=None, post_name=None, url_name=None, default_value=NotImplemented):
         super(ArgumentProcessor, self).__init__()
@@ -358,7 +358,7 @@ class ArgumentProcessor(BaseViewProcessor):
 
 
 class RelationArgumentProcessor(ArgumentProcessor):
-    __slots__ = slots('relation', 'value_type', *ArgumentProcessor.__slots__)
+    __slots__ = ('relation', 'value_type')
 
     def __init__(self, relation, value_type=int, **kwargs):
         super(RelationArgumentProcessor, self).__init__(**kwargs)
@@ -404,7 +404,7 @@ class BaseResponse(object):
 
 
 class Redirect(BaseResponse):
-    __slots__ = slots('target_url', 'permanent', *BaseResponse.__slots__)
+    __slots__ = ('target_url', 'permanent')
 
     def __init__(self, target_url, permanent=False, **kwargs):
         super(Redirect, self).__init__(http_mimetype=None, **kwargs)
@@ -417,7 +417,7 @@ class Redirect(BaseResponse):
 
 
 class Page(BaseResponse):
-    __slots__ = slots('template', *BaseResponse.__slots__)
+    __slots__ = ('template',)
 
     def __init__(self, template, http_mimetype='text/html', **kwargs):
         super(Page, self).__init__(http_mimetype=http_mimetype, **kwargs)
@@ -432,9 +432,9 @@ class Page(BaseResponse):
 
 # TODO: refactor error/errors
 class PageError(Page):
-    __slots__ = slots('code', 'errors', 'context', *Page.__slots__)
+    __slots__ = ('code', 'errors', 'context', 'info')
 
-    def __init__(self, code, errors, context, **kwargs):
+    def __init__(self, code, errors, context, info=None, **kwargs):
         if 'template' not in kwargs:
             if context.django_request.is_ajax():
                 kwargs['template'] = utils_settings.DIALOG_ERROR_TEMPLATE
@@ -451,6 +451,7 @@ class PageError(Page):
 
         kwargs['content'].update({'error_code': code,
                                   'error_message': error,
+                                  'error_info': info,
                                   'context': context,
                                   'resource': context.resource})# TODO: remove resource (added for compartibility with old version)
 
@@ -459,11 +460,22 @@ class PageError(Page):
         self.code = code
         self.errors = error
         self.context = context
+        self.info = info
 
+
+class Atom(BaseResponse):
+    __slots__ = ('feed',)
+
+    def __init__(self, feed, http_mimetype='application/atom+xml', **kwargs):
+        super(Atom, self).__init__(http_mimetype=http_mimetype, **kwargs)
+        self.feed = feed
+
+    def complete(self, context):
+        self.content = self.feed.writeString(self.http_charset)
+        return super(Atom, self).complete(context)
 
 
 class Ajax(BaseResponse):
-    __slots__ = BaseResponse.__slots__
 
     def __init__(self, http_mimetype='application/json', **kwargs):
         super(Ajax, self).__init__(http_mimetype=http_mimetype, **kwargs)
@@ -483,17 +495,19 @@ class AjaxOk(Ajax):
 
 # TODO: refactor error/errors
 class AjaxError(Ajax):
-    __slots__ = slots('code', 'errors', 'context', *BaseResponse.__slots__)
+    __slots__ = ('code', 'errors', 'context', 'info')
 
-    def __init__(self, code, errors, context, **kwargs):
+    def __init__(self, code, errors, context, info=None, **kwargs):
         super(AjaxError, self).__init__(**kwargs)
         self.code = code
         self.errors = errors
         self.context = context
+        self.info = info
 
     def wrap(self, context):
         data = {'status': 'error',
-                'code': self.code}
+                'code': self.code,
+                'info': self.info}
 
         if isinstance(self.errors, basestring):
             data['error'] = self.errors
@@ -504,7 +518,7 @@ class AjaxError(Ajax):
 
 
 class AjaxProcessing(Ajax):
-    __slots__ = slots('status_url', *BaseResponse.__slots__)
+    __slots__ = ('status_url',)
 
     def __init__(self, status_url, **kwargs):
         super(AjaxProcessing, self).__init__(**kwargs)
