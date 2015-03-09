@@ -4,6 +4,7 @@ import functools
 
 from django.conf.urls import patterns, url
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponsePermanentRedirect
+from django.conf import settings as project_settings
 
 from dext.common.utils import exceptions
 from dext.common.utils import relations
@@ -24,6 +25,7 @@ class Context(object):
 
 
 class View(object):
+    __slots__ = ('processors', 'logic', 'name', 'path', 'resource', '__doc__', '__name__')
 
     def __init__(self, logic):
         self.processors = []
@@ -31,6 +33,9 @@ class View(object):
         self.name = None
         self.path = None
         self.resource = None
+
+        self.__doc__ = logic.__doc__
+        self.__name__ = logic.__name__
 
     def get_processors(self):
         return self.resource.get_processors() + self.processors
@@ -226,7 +231,6 @@ class BaseViewProcessor(object):
         return decorator
 
 
-
 class HttpMethodProcessor(BaseViewProcessor):
     __slots__ = ('allowed_methods', )
 
@@ -356,6 +360,22 @@ class ArgumentProcessor(BaseViewProcessor):
         setattr(context, self.context_name, value)
 
 
+class IntArgumentProcessor(ArgumentProcessor):
+
+    def parse(self, context, raw_value):
+        try:
+            return int(raw_value)
+        except ValueError:
+            self.raise_wrong_format(context=context)
+
+class IntsArgumentProcessor(ArgumentProcessor):
+
+    def parse(self, context, raw_value):
+        try:
+            return [int(value.strip()) for value in raw_value.split(',')]
+        except ValueError:
+            self.raise_wrong_format(context=context)
+
 
 class RelationArgumentProcessor(ArgumentProcessor):
     __slots__ = ('relation', 'value_type')
@@ -371,12 +391,26 @@ class RelationArgumentProcessor(ArgumentProcessor):
         try:
             value = self.value_type(raw_value)
         except TypeError:
-            self.raise_wrong_format()
+            self.raise_wrong_format(context=context)
 
         try:
             return self.relation(value)
         except rels_exceptions.NotExternalValueError:
-            self.raise_wrong_value()
+            self.raise_wrong_value(context=context)
+
+
+class DebugProcessor(BaseViewProcessor):
+    __slots__ = ('required', )
+
+    def __init__(self, required, **kwargs):
+        super(DebugProcessor, self).__init__(**kwargs)
+        self.required = required
+
+    def preprocess(self, context):
+        context.debug = project_settings.DEBUG
+
+        if self.required and not context.debug:
+            raise ViewError(code='common.debug_required', message=u'Функционал доступен только в режиме отладки')
 
 
 
@@ -480,8 +514,8 @@ class Ajax(BaseResponse):
     def __init__(self, http_mimetype='application/json', **kwargs):
         super(Ajax, self).__init__(http_mimetype=http_mimetype, **kwargs)
 
-    def wrap(self, context):
-        return context
+    def wrap(self, content):
+        return content
 
     def complete(self, context):
         self.content = s11n.to_json(self.wrap(self.content))
@@ -489,8 +523,8 @@ class Ajax(BaseResponse):
 
 
 class AjaxOk(Ajax):
-    def wrap(self, context):
-        return {'status': 'ok', 'data': context}
+    def wrap(self, content):
+        return {'status': 'ok', 'data': content}
 
 
 # TODO: refactor error/errors
