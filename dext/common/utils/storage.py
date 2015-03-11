@@ -7,6 +7,8 @@ from dext.settings import settings
 
 
 class BaseStorage(object):
+    __slots__ = ('_postpone_version_update_nesting', '_update_version_requested', '_version')
+
     SETTINGS_KEY = None
     EXCEPTION = None
 
@@ -77,6 +79,7 @@ class BaseStorage(object):
 
 
 class Storage(BaseStorage):
+    __slots__ = ('data', )
 
     def _get_all_query(self):
         raise NotImplementedError()
@@ -140,6 +143,7 @@ class Storage(BaseStorage):
 
 
 class CachedStorage(Storage):
+    __slots__ = ()
 
     def _reset_cache(self):
         raise NotImplementedError()
@@ -161,6 +165,7 @@ class CachedStorage(Storage):
 
 
 class SingleStorage(BaseStorage):
+    __slots__ = ('_item',)
 
     @property
     def item(self):
