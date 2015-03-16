@@ -360,6 +360,23 @@ class ArgumentProcessor(BaseViewProcessor):
         setattr(context, self.context_name, value)
 
 
+class MapArgumentProcessor(ArgumentProcessor):
+    __slots__ = ('mapping',)
+
+    def __init__(self, mapping, **kwargs):
+        super(MapArgumentProcessor, self).__init__(**kwargs)
+        self.mapping = mapping
+
+    def parse(self, context, raw_value):
+
+        mapping = self.mapping if not callable(self.mapping) else self.mapping()
+
+        if raw_value not in mapping:
+            self.raise_wrong_value(context=context)
+
+        return mapping.get(raw_value)
+
+
 class IntArgumentProcessor(ArgumentProcessor):
 
     def parse(self, context, raw_value):

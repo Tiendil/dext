@@ -97,7 +97,7 @@ class Storage(BaseStorage):
         self.sync()
 
         if id_ not in self._data:
-            raise self.EXCEPTION(message='no object with id: %s' % id_)
+            raise self.EXCEPTION(message=u'no object with id: %s' % id_)
 
         return self._data[id_]
 
