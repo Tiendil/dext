@@ -105,6 +105,7 @@ class Storage(BaseStorage):
         '''
         only for add new items, not for any other sort of management
         '''
+        self.sync()
         self._data[id_] = item
 
     def __contains__(self, id_):
