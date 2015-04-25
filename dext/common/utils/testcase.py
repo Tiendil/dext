@@ -138,6 +138,9 @@ class TestCaseMixin(object):
         yield
         self.assertTrue(callback() < old_value)
 
+    def check_serialization(self, obj):
+        obj_data = obj.serialize()
+        self.assertEqual(obj_data, obj.deserialize(s11n.from_json(s11n.to_json(obj_data))).serialize())
 
     def request_html(self, url):
         return self.client.get(url, HTTP_ACCEPT='text/html')

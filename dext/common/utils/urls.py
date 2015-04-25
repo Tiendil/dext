@@ -7,9 +7,9 @@ from django.conf import settings as project_settings
 
 class UrlBuilder(object):
 
-    def __init__(self, base, protocol='http', arguments={}):
+    def __init__(self, base, protocol='http', arguments=None):
         self.base = base
-        self.default_arguments = arguments
+        self.default_arguments = arguments if arguments is not None else {}
         self.protocol = protocol
 
     @property

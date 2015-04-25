@@ -18,9 +18,9 @@ class Context(object):
 
     def __setattr__(self, name, value):
         if hasattr(self, name):
-            raise exceptions.ViewError(code='internal.try_to_reassign_context_value',
-                                       message=utils_settings.DEFAUL_ERROR_MESSAGE,
-                                       info={'name': name})
+            raise ViewError(code='internal.try_to_reassign_context_value',
+                            message=utils_settings.DEFAUL_ERROR_MESSAGE,
+                            info={'name': name})
         super(Context, self).__setattr__(name, value)
 
 
@@ -77,7 +77,7 @@ class View(object):
 
             return response.complete(context)
 
-        except exceptions.ViewError as error:
+        except ViewError as error:
             return self.process_error(error, request, context)
 
 
@@ -240,7 +240,7 @@ class HttpMethodProcessor(BaseViewProcessor):
 
     def preprocess(self, context):
         if context.django_request.method not in self.allowed_methods:
-            raise exceptions.ViewError(code=u'common.wrong_http_method',
+            raise ViewError(code=u'common.wrong_http_method',
                                        message=u'К адресу нельзя обратиться с помощью HTTP метода "%(method)s"' % {'method': context.django_request.method})
 
         context.django_method = relations.HTTP_METHOD.index_name[context.django_request.method]
@@ -275,7 +275,7 @@ class AccessProcessor(BaseViewProcessor):
 
     def preprocess(self, context):
         if not self.check(context):
-            raise exceptions.ViewError(code=self.ERROR_CODE, message=self.ERROR_MESSAGE)
+            raise ViewError(code=self.ERROR_CODE, message=self.ERROR_MESSAGE)
 
 
 class FormProcessor(BaseViewProcessor):
@@ -291,7 +291,7 @@ class FormProcessor(BaseViewProcessor):
         form = self.form_class(context.django_request.POST)
 
         if not form.is_valid():
-            raise exceptions.ViewError(code='%s.form_errors' % context.dext_error_prefix, message=form.errors)
+            raise ViewError(code='%s.form_errors' % context.dext_error_prefix, message=form.errors)
 
         setattr(context, self.context_name, form)
 
@@ -336,13 +336,13 @@ class ArgumentProcessor(BaseViewProcessor):
             return self.post_name
 
     def raise_not_specified(self, context):
-        raise exceptions.ViewError(code='%s.%s.not_specified' % (context.dext_error_prefix, self._argument_name()), message=self.error_message)
+        raise ViewError(code='%s.%s.not_specified' % (context.dext_error_prefix, self._argument_name()), message=self.error_message)
 
     def raise_wrong_format(self, context):
-        raise exceptions.ViewError(code='%s.%s.wrong_format' % (context.dext_error_prefix, self._argument_name()), message=self.error_message)
+        raise ViewError(code='%s.%s.wrong_format' % (context.dext_error_prefix, self._argument_name()), message=self.error_message)
 
     def raise_wrong_value(self, context):
-        raise exceptions.ViewError(code='%s.%s.wrong_value' % (context.dext_error_prefix, self._argument_name()), message=self.error_message)
+        raise ViewError(code='%s.%s.wrong_value' % (context.dext_error_prefix, self._argument_name()), message=self.error_message)
 
     def preprocess(self, context):
 
@@ -495,7 +495,7 @@ class PageError(Page):
         if isinstance(errors, basestring):
             error = errors
         else:
-            error = errors[0]
+            error = errors.values()[0][0]
 
         if 'content' not in kwargs:
             kwargs['content'] = {}
@@ -558,7 +558,7 @@ class AjaxError(Ajax):
     def wrap(self, context):
         data = {'status': 'error',
                 'code': self.code,
-                'info': self.info}
+                'data': self.info}
 
         if isinstance(self.errors, basestring):
             data['error'] = self.errors

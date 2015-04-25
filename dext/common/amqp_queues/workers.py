@@ -30,6 +30,7 @@ class BaseWorker(object):
     RECEIVE_ANSWERS = False
     LOGGER_PREFIX = None
     REFRESH_SETTINGS = True
+    FULL_CMD_LOG = False
     GET_CMD_TIMEOUT = 9999999
     NO_CMD_TIMEOUT = 0
 
@@ -117,12 +118,17 @@ class BaseWorker(object):
         self.command_queue.put({'type': tp, 'data': data if data else {}}, serializer='json', compression=None)
 
 
+    def _prepair_cmd_data_for_log(self, data):
+        if self.FULL_CMD_LOG:
+            return data
+
+        return {key: value for key, value in data.iteritems() if not isinstance(value, dict)}
 
     def process_cmd(self, cmd):
         cmd_type = cmd['type']
         cmd_data = cmd['data']
 
-        self.logger.info('<%s> %r' % (cmd_type, cmd_data))
+        self.logger.info('<%s> %r' % (cmd_type, self._prepair_cmd_data_for_log(cmd_data)))
 
         if not self.initialized and cmd_type != 'initialize':
             self.logger.error('ERROR: receive cmd before initialization')

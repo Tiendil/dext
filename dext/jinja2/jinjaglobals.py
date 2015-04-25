@@ -10,8 +10,8 @@ from .decorators import jinjafilter, jinjaglobal
 
 
 @jinjaglobal
-def jmap(func, iterable):
-    return map(func, iterable)
+def jmap(func, *iterables):
+    return map(func, *iterables)
 
 @jinjaglobal
 @jinja2.contextfunction
