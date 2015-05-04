@@ -29,4 +29,6 @@ class Command(BaseCommand):
             if discovering.is_module_exists(tests_path):
                 tests.append(tests_path)
 
-        run_django_command(['test'] + tests)
+        result = run_django_command(['test', '--nomigrations'] + tests)
+
+        print 'test result: ', result

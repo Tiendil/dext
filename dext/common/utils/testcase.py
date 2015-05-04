@@ -38,7 +38,7 @@ class TestCaseMixin(object):
         self.assertIn('_auth_user_id', self.client.session)
 
         if account:
-            self.assertEqual(account.id, self.client.session['_auth_user_id'])
+            self.assertEqual(account.id, int(self.client.session['_auth_user_id']))
 
     def check_logged_out(self):
         self.assertNotIn('_auth_user_id', self.client.session)

@@ -40,7 +40,15 @@ def create_handler_view(resource_class, handler):
                 arguments[arg] = request.GET.get(arg)
 
         if method:
+            # try:
             return method(**arguments)
+            # except Exception, e:
+            #     import sys
+            #     import traceback
+            #     print sys.exc_info()
+            #     print repr(e)
+            #     traceback.print_exc()
+            #     raise
 
         raise ResourceException('can not dispatch url for handler "%s"' % handler_path)
 

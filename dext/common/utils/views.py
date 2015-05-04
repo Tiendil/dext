@@ -10,6 +10,7 @@ from dext.common.utils import exceptions
 from dext.common.utils import relations
 from dext.common.utils import s11n
 from dext.common.utils.conf import utils_settings
+from dext.common.utils import jinja2
 
 # for external code
 ViewError = exceptions.ViewError
@@ -475,9 +476,8 @@ class Page(BaseResponse):
         self.template = template
 
     def complete(self, context):
-        from dext.jinja2 import render
         self.content['context'] = context
-        self.content = render.template(self.template, self.content, context.django_request)
+        self.content = jinja2.render(self.template, context=self.content, request=context.django_request)
         return super(Page, self).complete(context)
 
 

@@ -7,7 +7,9 @@ from django.middleware import csrf
 
 from dext.common.utils import s11n, memoize, logic
 from dext.common.utils.response import mime_type_to_response_type
-from dext.jinja2 import render
+
+from dext.common.utils import jinja2
+
 
 class ResourceException(Exception): pass
 
@@ -185,7 +187,11 @@ class BaseResource(object):
         if status_code == 404:
             response_class = HttpResponseNotFound
 
-        return response_class(render.template(template_name, full_context, self.request), content_type='%s; charset=%s' % (mimetype, charset))
+        content_type = '%s; charset=%s' % (mimetype, charset)
+
+        text = jinja2.render(template_name, context=full_context, request=self.request)
+
+        return response_class(text, content_type=content_type)
 
 
     def json(self, charset='utf-8', mimetype='application/json', **kwargs):
