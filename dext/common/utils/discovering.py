@@ -2,9 +2,9 @@
 import os
 import functools
 
-from django.conf import settings as project_settings
 from django.utils.importlib import import_module
 from django.utils.module_loading import module_has_submodule
+from django.apps import apps as django_apps
 
 
 def is_module_exists(module_path):
@@ -41,11 +41,11 @@ def automatic_discover(container, module_name):
 
             container.clear()
 
-            for app in project_settings.INSTALLED_APPS:
-                mod = import_module(app)
+            for application in django_apps.get_app_configs():
+                mod = import_module(application.name)
 
                 try:
-                    function(container, import_module('%s.%s' % (app, module_name)))
+                    function(container, import_module('%s.%s' % (application.name, module_name)))
                 except StandardError:
                     if module_has_submodule(mod, module_name):
                         raise

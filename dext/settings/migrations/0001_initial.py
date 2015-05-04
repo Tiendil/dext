@@ -1,32 +1,25 @@
 # -*- coding: utf-8 -*-
-import datetime
-from south.db import db
-from south.v2 import SchemaMigration
-from django.db import models
+from __future__ import unicode_literals
+
+from django.db import models, migrations
 
 
-class Migration(SchemaMigration):
+class Migration(migrations.Migration):
 
-    def forwards(self, orm):
-        # Adding model 'Setting'
-        db.create_table('settings_setting', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('key', self.gf('django.db.models.fields.CharField')(unique=True, max_length=64, db_index=True)),
-            ('value', self.gf('django.db.models.fields.TextField')(default='')),
-        ))
-        db.send_create_signal('settings', ['Setting'])
+    dependencies = [
+    ]
 
-    def backwards(self, orm):
-        # Deleting model 'Setting'
-        db.delete_table('settings_setting')
-
-    models = {
-        'settings.setting': {
-            'Meta': {'object_name': 'Setting'},
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'key': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '64', 'db_index': 'True'}),
-            'value': ('django.db.models.fields.TextField', [], {'default': "''"})
-        }
-    }
-
-    complete_apps = ['settings']
+    operations = [
+        migrations.CreateModel(
+            name='Setting',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('updated_at', models.DateTimeField(auto_now=True)),
+                ('key', models.CharField(unique=True, max_length=64, db_index=True)),
+                ('value', models.TextField(default=b'')),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+    ]

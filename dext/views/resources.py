@@ -159,22 +159,22 @@ class BaseResource(object):
         return logic.get_ip_from_request(self.request)
 
     def string(self, string, charset='utf-8'):
-        return HttpResponse(string, mimetype='text/html; charset=%s' % charset)
+        return HttpResponse(string, content_type='text/html; charset=%s' % charset)
 
     def js(self, string, charset='utf-8'):
-        return HttpResponse(string, mimetype='application/x-javascript; charset=%s' % charset)
+        return HttpResponse(string, content_type='application/x-javascript; charset=%s' % charset)
 
     def xml(self, string, charset='utf-8'):
-        return HttpResponse(string, mimetype='text/xml; charset=%s' % charset)
+        return HttpResponse(string, content_type='text/xml; charset=%s' % charset)
 
     def atom(self, string, charset='utf-8'):
-        return HttpResponse(string, mimetype='application/atom+xml; charset=%s' % charset)
+        return HttpResponse(string, content_type='application/atom+xml; charset=%s' % charset)
 
     def rss(self, string, charset='utf-8'):
-        return HttpResponse(string, mimetype='application/rss+xml; charset=%s' % charset)
+        return HttpResponse(string, content_type='application/rss+xml; charset=%s' % charset)
 
     def rdf(self, string, charset='utf-8'):
-        return HttpResponse(string, mimetype='application/rdf+xml; charset=%s' % charset)
+        return HttpResponse(string, content_type='application/rdf+xml; charset=%s' % charset)
 
     def template(self, template_name, context={}, status_code=200, charset='utf-8', mimetype='text/html'):
         full_context = {'resource': self}
@@ -185,11 +185,11 @@ class BaseResource(object):
         if status_code == 404:
             response_class = HttpResponseNotFound
 
-        return response_class(render.template(template_name, full_context, self.request), mimetype='%s; charset=%s' % (mimetype, charset))
+        return response_class(render.template(template_name, full_context, self.request), content_type='%s; charset=%s' % (mimetype, charset))
 
 
     def json(self, charset='utf-8', mimetype='application/json', **kwargs):
-        response = HttpResponse(s11n.to_json(kwargs), mimetype='%s; charset=%s' % (mimetype, charset))
+        response = HttpResponse(s11n.to_json(kwargs), content_type='%s; charset=%s' % (mimetype, charset))
         return response
 
     def json_ok(self, data=None, charset='utf-8', mimetype='application/json'):
@@ -214,7 +214,7 @@ class BaseResource(object):
     def js_error(self, code, messages=None, mimetype='application/x-javascript', charset='utf-8'):
         data = self.error(code=code, messages=messages)
         response = HttpResponse(u'function DextErrorMessage(){return %s;};' % s11n.to_json(data),
-                                mimetype='%s; charset=%s' % (mimetype, charset))
+                                content_type='%s; charset=%s' % (mimetype, charset))
         return response
 
     def error(self, code, messages=None):
@@ -245,7 +245,7 @@ class BaseResource(object):
         return self.json_error(code, message, charset=charset)
 
     def css(self, text, charset='utf-8'):
-        response = HttpResponse(text, mimetype='text/css; charset=%s' % charset)
+        response = HttpResponse(text, content_type='text/css; charset=%s' % charset)
         return response
 
     def redirect(self, url, permanent=False):

@@ -12,7 +12,7 @@ def less_compiler(request, path):
     file_path = os.path.join(settings.LESS_FILES_DIR, path + '.less')
     if not os.path.exists(file_path):
         file_path = os.path.join(settings.LESS_FILES_DIR, path + '.css')
-    
+
     (out, err) = Popen(["lessc", file_path], stdout=PIPE).communicate()
-    
-    return HttpResponse(out, mimetype='text/css')
+
+    return HttpResponse(out, content_type='text/css; charset=utf-8')

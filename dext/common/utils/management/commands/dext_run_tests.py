@@ -3,7 +3,7 @@
 import subprocess
 
 from django.core.management.base import BaseCommand
-from django.conf import settings as project_settings
+from django.apps import apps as django_apps
 
 from dext.common.utils import discovering
 from dext.common.utils.logic import run_django_command
@@ -19,13 +19,13 @@ class Command(BaseCommand):
         subprocess.call("rm -f `find ./ -name '*.pyc'`", shell=True)
 
         tests = []
-        for app_label in project_settings.INSTALLED_APPS:
-            label = app_label.split('.')
+        for application in django_apps.get_app_configs():
+            label = application.name.split('.')
 
             if label[0] == 'django':
                 continue
 
-            tests_path = '%s.tests' % app_label
+            tests_path = '%s.tests' % application.name
             if discovering.is_module_exists(tests_path):
                 tests.append(tests_path)
 

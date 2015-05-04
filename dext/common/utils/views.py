@@ -451,7 +451,7 @@ class BaseResponse(object):
     def complete(self, context):
         return HttpResponse(self.content,
                             status=self.http_status.value,
-                            mimetype='%s; charset=%s' % (self.http_mimetype, self.http_charset))
+                            content_type='%s; charset=%s' % (self.http_mimetype, self.http_charset))
 
 
 class Redirect(BaseResponse):

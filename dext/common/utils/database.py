@@ -1,6 +1,7 @@
 # coding: utf-8
 from django.db import connection, transaction
 
+@transaction.atomic()
 def raw_save(record):
 
     cursor = connection.cursor()
@@ -18,4 +19,3 @@ def raw_save(record):
     sql = u' '.join(sql)
 
     cursor.execute(sql, args)
-    transaction.commit_unless_managed()
