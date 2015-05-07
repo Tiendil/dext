@@ -5,6 +5,7 @@ import functools
 from django.conf.urls import patterns, url
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponsePermanentRedirect
 from django.conf import settings as project_settings
+from django.middleware import csrf
 
 from dext.common.utils import exceptions
 from dext.common.utils import relations
@@ -160,7 +161,7 @@ class Resource(object):
         self.children.append(child)
         child.parent = self
 
-    def handler(self, *argv, **kwargs):
+    def __call__(self, *argv, **kwargs):
 
         name = kwargs.get('name', argv[-1])
 
@@ -171,7 +172,7 @@ class Resource(object):
 
         methods = [m.upper() for m in methods]
 
-        @functools.wraps(self.handler)
+        @functools.wraps(self.__call__)
         def decorator(func):
 
             view = func if isinstance(func, View) else View(logic=func)
@@ -204,10 +205,36 @@ class Resource(object):
         return patterns('', *urls)
 
 
+class ProcessorArgument(object):
+    __slots__ = ('default', )
+
+    def __init__(self, default=NotImplemented):
+        self.default = default
+
+# TODO: write metaclass for processing processor arguments
 class BaseViewProcessor(object):
     __slots__ = ()
 
-    def __init__(self): pass
+    def __init__(self, **kwargs):
+        for argument_name in dir(self):
+            argument = getattr(self, argument_name)
+            if not isinstance(argument, ProcessorArgument):
+                continue
+
+            name = argument_name[4:].lower()
+            value = kwargs.get(name, getattr(self, name.upper(), argument.default))
+
+            setattr(self, name, value)
+
+        for argument_name, value in kwargs.iteritems():
+            argument = getattr(self, 'ARG_%s' % argument_name.upper())
+            if not isinstance(argument, ProcessorArgument):
+                raise exceptions.WrongProcessorArgumentError(processor=self, argument=argument_name)
+
+        self.initialize()
+
+    def initialize(self):
+        pass
 
     def preprocess(self, context):
         pass
@@ -215,77 +242,62 @@ class BaseViewProcessor(object):
     def postprocess(self, context, response):
         return response
 
-    @classmethod
-    def handler(cls, *argv, **kwargs):
+    def __call__(self, view):
+        view = view if isinstance(view, View) else View(logic=view)
 
-        @functools.wraps(cls.handler)
-        def decorator(func):
+        view.add_processor(self)
 
-            view = func if isinstance(func, View) else View(logic=func)
-
-            handler = cls(*argv, **kwargs)
-
-            view.add_processor(handler)
-
-            return view
-
-        return decorator
+        return view
 
 
 class HttpMethodProcessor(BaseViewProcessor):
     __slots__ = ('allowed_methods', )
+    ARG_ALLOWED_METHODS = ProcessorArgument()
 
-    def __init__(self, allowed_methods):
-        super(HttpMethodProcessor, self).__init__()
-        self.allowed_methods = frozenset(allowed_methods)
+    def initialize(self):
+        super(HttpMethodProcessor, self).initialize()
+        self.allowed_methods = frozenset(self.allowed_methods)
 
     def preprocess(self, context):
         if context.django_request.method not in self.allowed_methods:
             raise ViewError(code=u'common.wrong_http_method',
-                                       message=u'К адресу нельзя обратиться с помощью HTTP метода "%(method)s"' % {'method': context.django_request.method})
+                            message=u'К адресу нельзя обратиться с помощью HTTP метода "%(method)s"' % {'method': context.django_request.method})
 
         context.django_method = relations.HTTP_METHOD.index_name[context.django_request.method]
 
 
 class CSRFProcessor(BaseViewProcessor):
-
     def preprocess(self, context):
-        from django.middleware import csrf
         context.csrf = csrf.get_token(context.django_request)
 
 
 class PermissionProcessor(BaseViewProcessor):
     __slots__ = ('permission', 'context_name')
-
-    def __init__(self, permission, context_name):
-        super(PermissionProcessor, self).__init__()
-        self.permission = permission
-        self.context_name = context_name
+    ARG_PERMISSION = ProcessorArgument()
+    ARG_CONTEXT_NAME = ProcessorArgument()
 
     def preprocess(self, context):
         setattr(context, self.context_name, context.django_request.user.has_perm(self.permission))
 
 
 class AccessProcessor(BaseViewProcessor):
-
-    ERROR_CODE = NotImplemented
-    ERROR_MESSAGE = NotImplemented
+    __slots__ = ('error_code', 'error_message')
+    ARG_ERROR_CODE = ProcessorArgument()
+    ARG_ERROR_MESSAGE = ProcessorArgument()
 
     def check(self, context):
         raise NotImplementedError()
 
     def preprocess(self, context):
         if not self.check(context):
-            raise ViewError(code=self.ERROR_CODE, message=self.ERROR_MESSAGE)
+            raise ViewError(code=self.error_code, message=self.error_message)
 
 
 class FormProcessor(BaseViewProcessor):
     __slots__ = ('error_message', 'form_class', 'context_name')
-
-    def __init__(self, form_class, context_name='form', **kwargs):
-        super(FormProcessor, self).__init__(**kwargs)
-        self.form_class = form_class
-        self.context_name = context_name
+    ARG_FORM_CLASS = ProcessorArgument()
+    ARG_ERROR_MESSAGE = ProcessorArgument()
+    ARG_CONTEXT_NAME = ProcessorArgument(default='form')
 
     def preprocess(self, context):
 
@@ -300,21 +312,21 @@ class FormProcessor(BaseViewProcessor):
 
 class ArgumentProcessor(BaseViewProcessor):
     __slots__ = ('error_message', 'get_name', 'post_name', 'url_name', 'context_name', 'default_value')
+    ARG_CONTEXT_NAME = ProcessorArgument()
+    ARG_ERROR_MESSAGE = ProcessorArgument()
+    ARG_GET_NAME = ProcessorArgument(default=None)
+    ARG_POST_NAME = ProcessorArgument(default=None)
+    ARG_URL_NAME = ProcessorArgument(default=None)
+    ARG_CONTEXT_NAME = ProcessorArgument()
+    ARG_DEFAULT_VALUE = ProcessorArgument()
 
-    def __init__(self, context_name, error_message=None, get_name=None, post_name=None, url_name=None, default_value=NotImplemented):
-        super(ArgumentProcessor, self).__init__()
+    def initialize(self):
+        super(ArgumentProcessor, self).initialize()
 
-        if sum((1 if get_name else 0,
-                1 if post_name else 0,
-                1 if url_name else 0)) != 1:
+        if sum((1 if self.get_name else 0,
+                1 if self.post_name else 0,
+                1 if self.url_name else 0)) != 1:
             raise exceptions.SingleNameMustBeSpecifiedError()
-
-        self.error_message = error_message
-        self.url_name = url_name
-        self.get_name = get_name
-        self.post_name = post_name
-        self.context_name = context_name
-        self.default_value = default_value
 
     def extract(self, context):
         if self.url_name:
@@ -363,10 +375,7 @@ class ArgumentProcessor(BaseViewProcessor):
 
 class MapArgumentProcessor(ArgumentProcessor):
     __slots__ = ('mapping',)
-
-    def __init__(self, mapping, **kwargs):
-        super(MapArgumentProcessor, self).__init__(**kwargs)
-        self.mapping = mapping
+    ARG_MAPPING = ProcessorArgument()
 
     def parse(self, context, raw_value):
 
@@ -397,11 +406,8 @@ class IntsArgumentProcessor(ArgumentProcessor):
 
 class RelationArgumentProcessor(ArgumentProcessor):
     __slots__ = ('relation', 'value_type')
-
-    def __init__(self, relation, value_type=int, **kwargs):
-        super(RelationArgumentProcessor, self).__init__(**kwargs)
-        self.relation = relation
-        self.value_type = value_type
+    ARG_RELATION = ProcessorArgument()
+    ARG_VALUE_TYPE = ProcessorArgument(default=int)
 
     def parse(self, context, raw_value):
         from rels import exceptions as rels_exceptions
@@ -418,19 +424,11 @@ class RelationArgumentProcessor(ArgumentProcessor):
 
 
 class DebugProcessor(BaseViewProcessor):
-    __slots__ = ('required', )
-
-    def __init__(self, required, **kwargs):
-        super(DebugProcessor, self).__init__(**kwargs)
-        self.required = required
-
     def preprocess(self, context):
         context.debug = project_settings.DEBUG
 
         if self.required and not context.debug:
             raise ViewError(code='common.debug_required', message=u'Функционал доступен только в режиме отладки')
-
-
 
 
 class BaseResponse(object):
@@ -443,11 +441,11 @@ class BaseResponse(object):
                  http_mimetype,
                  http_status = relations.HTTP_STATUS.OK,
                  http_charset='utf-8',
-                 content={}):
+                 content=None):
         self.http_status = http_status
         self.http_mimetype = http_mimetype
         self.http_charset = http_charset
-        self.content = content
+        self.content = content if content is not None else {}
 
     def complete(self, context):
         return HttpResponse(self.content,

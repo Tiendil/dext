@@ -20,6 +20,7 @@ class ViewError(DextError):
     @property
     def info(self): return self.arguments.get('info')
 
+
 class InternalViewError(DextError):
     pass
 
@@ -29,3 +30,6 @@ class DuplicateViewNameError(InternalViewError):
 
 class SingleNameMustBeSpecifiedError(InternalViewError):
     MSG = u'single argument name must be specified (not less, not more)'
+
+class WrongProcessorArgumentError(InternalViewError):
+    MSG = u'processor "%(processor)s" received wrong argument name "%(argument)s"'
