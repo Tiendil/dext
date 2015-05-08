@@ -52,7 +52,6 @@ class View(object):
         context.django_url_argumens = url_arguments
 
         context.dext_view = self
-        context.dext_error_prefix = '%s.%s' % (self.resource.name, self.name)
 
         unprocessed_processors = self.get_processors()
 
@@ -101,7 +100,12 @@ class View(object):
 
     def process_error(self, error, request, context):
         error_response_class = self._get_error_response_class(request)
-        return error_response_class(code=error.code, errors=error.message, context=context, info=error.info).complete(context)
+        info = error.info
+        info['resource'] = '%s.%s' % (self.resource.name, self.name)
+        return error_response_class(code=error.code,
+                                    errors=error.message,
+                                    context=context,
+                                    info=info).complete(context)
 
 
     def get_url_record(self):
@@ -304,7 +308,7 @@ class FormProcessor(BaseViewProcessor):
         form = self.form_class(context.django_request.POST)
 
         if not form.is_valid():
-            raise ViewError(code='%s.form_errors' % context.dext_error_prefix, message=form.errors)
+            raise ViewError(code='form_errors', message=form.errors)
 
         setattr(context, self.context_name, form)
 
@@ -348,14 +352,14 @@ class ArgumentProcessor(BaseViewProcessor):
         if self.post_name:
             return self.post_name
 
-    def raise_not_specified(self, context):
-        raise ViewError(code='%s.%s.not_specified' % (context.dext_error_prefix, self._argument_name()), message=self.error_message)
+    def raise_not_specified(self):
+        raise ViewError(code='%s.not_specified' % self._argument_name(), message=self.error_message)
 
-    def raise_wrong_format(self, context):
-        raise ViewError(code='%s.%s.wrong_format' % (context.dext_error_prefix, self._argument_name()), message=self.error_message)
+    def raise_wrong_format(self):
+        raise ViewError(code='%s.wrong_format' % self._argument_name(), message=self.error_message)
 
-    def raise_wrong_value(self, context):
-        raise ViewError(code='%s.%s.wrong_value' % (context.dext_error_prefix, self._argument_name()), message=self.error_message)
+    def raise_wrong_value(self):
+        raise ViewError(code='%s.wrong_value' % self._argument_name(), message=self.error_message)
 
     def preprocess(self, context):
 
@@ -365,7 +369,7 @@ class ArgumentProcessor(BaseViewProcessor):
             value = self.parse(context, raw_value)
 
         elif self.default_value is NotImplemented:
-            self.raise_not_specified(context=context)
+            self.raise_not_specified()
 
         else:
             value = self.default_value
@@ -382,7 +386,7 @@ class MapArgumentProcessor(ArgumentProcessor):
         mapping = self.mapping if not callable(self.mapping) else self.mapping()
 
         if raw_value not in mapping:
-            self.raise_wrong_value(context=context)
+            self.raise_wrong_value()
 
         return mapping.get(raw_value)
 
@@ -393,7 +397,7 @@ class IntArgumentProcessor(ArgumentProcessor):
         try:
             return int(raw_value)
         except ValueError:
-            self.raise_wrong_format(context=context)
+            self.raise_wrong_format()
 
 class IntsArgumentProcessor(ArgumentProcessor):
 
@@ -401,7 +405,7 @@ class IntsArgumentProcessor(ArgumentProcessor):
         try:
             return [int(value.strip()) for value in raw_value.split(',')]
         except ValueError:
-            self.raise_wrong_format(context=context)
+            self.raise_wrong_format()
 
 
 class RelationArgumentProcessor(ArgumentProcessor):
@@ -415,12 +419,12 @@ class RelationArgumentProcessor(ArgumentProcessor):
         try:
             value = self.value_type(raw_value)
         except TypeError:
-            self.raise_wrong_format(context=context)
+            self.raise_wrong_format()
 
         try:
             return self.relation(value)
         except rels_exceptions.NotExternalValueError:
-            self.raise_wrong_value(context=context)
+            self.raise_wrong_value()
 
 
 class DebugProcessor(BaseViewProcessor):
