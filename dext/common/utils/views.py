@@ -297,6 +297,22 @@ class AccessProcessor(BaseViewProcessor):
             raise ViewError(code=self.error_code, message=self.error_message)
 
 
+class FlaggedAccessProcessor(AccessProcessor):
+    __slots__ = ('error_code', 'error_message')
+    ARG_ERROR_CODE = ProcessorArgument()
+    ARG_ERROR_MESSAGE = ProcessorArgument()
+    ARG_ARGUMENT = ProcessorArgument()
+
+    def extract(self, context):
+        return getattr(context, self.argument)
+
+    def validate(self, argument):
+        return argument
+
+    def check(self, context):
+        return self.validate(self.extract(context))
+
+
 class FormProcessor(BaseViewProcessor):
     __slots__ = ('error_message', 'form_class', 'context_name')
     ARG_FORM_CLASS = ProcessorArgument()
@@ -431,7 +447,7 @@ class DebugProcessor(BaseViewProcessor):
     def preprocess(self, context):
         context.debug = project_settings.DEBUG
 
-        if self.required and not context.debug:
+        if not context.debug:
             raise ViewError(code='common.debug_required', message=u'Функционал доступен только в режиме отладки')
 
 
