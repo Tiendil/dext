@@ -1,8 +1,0 @@
-
-This package contains:
-
-- custom form fields derived from django 
-- jinja2 - module to use jinja2 templates with django
-- less - module to use "The dynamic stylesheet language" (http://lesscss.org/) with django
-- views - resource based views
-- utils - different helpfull utils
