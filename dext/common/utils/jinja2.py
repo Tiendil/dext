@@ -2,6 +2,7 @@
 from __future__ import absolute_import
 
 import sys
+import importlib
 
 import jinja2
 
@@ -9,7 +10,6 @@ from django.conf import settings as project_settings
 from django.apps import apps as django_apps
 from django.utils import six
 from django.utils.functional import cached_property
-from django.utils.importlib import import_module
 from django.utils.module_loading import module_has_submodule
 from django.template import loader
 
@@ -53,12 +53,12 @@ def get_jinjaglobals(module):
 def discover(environment):
 
     for app in project_settings.INSTALLED_APPS:
-        mod = import_module(app)
+        mod = importlib.import_module(app)
 
         if not module_has_submodule(mod, 'jinjaglobals'):
             continue
 
-        jinjaglobals_module = import_module('%s.jinjaglobals' % app)
+        jinjaglobals_module = importlib.import_module('%s.jinjaglobals' % app)
 
         global_functions, filter_functions = get_jinjaglobals(jinjaglobals_module)
 

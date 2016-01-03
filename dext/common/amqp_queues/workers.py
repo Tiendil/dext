@@ -2,10 +2,10 @@
 
 import sys
 import time
+import logging
 import Queue
 
 from django.conf import settings as project_settings
-from django.utils.log import getLogger
 from django import db
 
 from dext.common.amqp_queues import exceptions
@@ -51,7 +51,7 @@ class BaseWorker(object):
         self.stop_queue = connection.create_simple_buffer('%s_stop' % self.name, no_ack=True) if self.STOP_SIGNAL_REQUIRED else None
         self.answers_queue = connection.create_simple_buffer('%s_answers' % self.name, no_ack=True) if self.RECEIVE_ANSWERS else None
 
-        self.logger = getLogger('%s.%s' % (self.LOGGER_PREFIX, self.name))
+        self.logger = logging.getLogger('%s.%s' % (self.LOGGER_PREFIX, self.name))
 
         self.exception_raised = False
         self.stop_required = False

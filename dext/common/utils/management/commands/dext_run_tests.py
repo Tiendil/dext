@@ -1,5 +1,5 @@
 # coding: utf-8
-
+import optparse
 import subprocess
 
 from django.core.management.base import BaseCommand
@@ -15,7 +15,16 @@ class Command(BaseCommand):
 
     requires_model_validation = False
 
+    option_list = BaseCommand.option_list + ( optparse.make_option('-n', '--processes-number',
+                                                                   action='store',
+                                                                   type=int,
+                                                                   default=1,
+                                                                   dest='processes_number',
+                                                                   help='parallel processes number'), )
+
     def handle(self, *args, **options):
+        N = options.get('processes_number')
+
         subprocess.call("rm -f `find ./ -name '*.pyc'`", shell=True)
 
         tests = []
@@ -29,6 +38,6 @@ class Command(BaseCommand):
             if discovering.is_module_exists(tests_path):
                 tests.append(tests_path)
 
-        result = run_django_command(['test', '--nomigrations'] + tests)
+        result = run_django_command(['test', '--nomigrations', '--parallel', str(N)] + tests)
 
         print 'test result: ', result

@@ -2,7 +2,6 @@
 
 from datetime import datetime
 
-from dext.settings.models import Setting
 from dext.settings.conf import dext_settings_settings
 
 
@@ -16,7 +15,8 @@ class Settings(object):
         self.initialized = False
 
     def _load_data(self):
-        return dict(Setting.objects.all().values_list('key', 'value'))
+        from dext.settings import models
+        return dict(models.Setting.objects.all().values_list('key', 'value'))
         # return {record.key:record.value for record in Setting.objects.all()}
 
     def refresh(self, force=False):
@@ -35,6 +35,7 @@ class Settings(object):
         return self.data[key]
 
     def __setitem__(self, key, value):
+        from dext.settings import models
 
         if not isinstance(key, basestring):
             raise SettingsException('wrong key type: %r' % key)
@@ -46,13 +47,15 @@ class Settings(object):
 
         if dext_settings_settings.UPDATE_DATABASE:
             if key in self.data:
-                Setting.objects.filter(key=key).update(value=value, updated_at=datetime.now())
+                models.Setting.objects.filter(key=key).update(value=value, updated_at=datetime.now())
             else:
-                Setting.objects.create(key=key, value=value)
+                models.Setting.objects.create(key=key, value=value)
 
         self.data[key] = value
 
     def __delitem__(self, key):
+        from dext.settings import models
+
         if not isinstance(key, basestring):
             raise SettingsException('wrong key type: %r' % key)
 
@@ -60,7 +63,7 @@ class Settings(object):
             self.refresh()
 
         if key in self.data:
-            Setting.objects.filter(key=key).delete()
+            models.Setting.objects.filter(key=key).delete()
         else:
             raise SettingsException('key "%r" not in settings' % key)
 

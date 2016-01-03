@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from django.utils.importlib import import_module
+import importlib
 
 from dext.common.amqp_queues.conf import amqp_settings
 from dext.common.amqp_queues.workers import BaseWorker
@@ -49,5 +49,5 @@ class BaseEnvironment(object):
 
 
 def get_environment():
-    module = import_module(amqp_settings.ENVIRONMENT_MODULE)
+    module = importlib.import_module(amqp_settings.ENVIRONMENT_MODULE)
     return module.environment

@@ -140,7 +140,7 @@ class Storage(BaseStorage):
     def save_all(self):
         with self.postpone_version_update():
             for record in self._data.values():
-                record.save()
+                self._save_object(record)
 
 
 class CachedStorage(Storage):

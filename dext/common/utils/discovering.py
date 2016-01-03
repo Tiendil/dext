@@ -1,15 +1,15 @@
 # coding: utf-8
 import os
 import functools
+import importlib
 
-from django.utils.importlib import import_module
 from django.utils.module_loading import module_has_submodule
 from django.apps import apps as django_apps
 
 
 def is_module_exists(module_path):
     try:
-        return import_module(module_path)
+        return importlib.import_module(module_path)
     except StandardError:
         return False
 
@@ -42,10 +42,10 @@ def automatic_discover(container, module_name):
             container.clear()
 
             for application in django_apps.get_app_configs():
-                mod = import_module(application.name)
+                mod = importlib.import_module(application.name)
 
                 try:
-                    function(container, import_module('%s.%s' % (application.name, module_name)))
+                    function(container, importlib.import_module('%s.%s' % (application.name, module_name)))
                 except StandardError:
                     if module_has_submodule(mod, module_name):
                         raise
@@ -57,7 +57,7 @@ def automatic_discover(container, module_name):
 
 def get_function(function_path):
     module_path, function_name = function_path.rsplit('.', 1)
-    module = import_module(module_path)
+    module = importlib.import_module(module_path)
     return getattr(module, function_name)
 
 
@@ -70,4 +70,4 @@ def discover_modules_in_directory(path, prefix, exclude=('__init__.py',)):
         if name in exclude:
             continue
 
-        yield import_module('%s.%s' % (prefix, name[:-3]))
+        yield importlib.import_module('%s.%s' % (prefix, name[:-3]))
