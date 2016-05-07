@@ -3,7 +3,7 @@ import setuptools
 
 setuptools.setup(
     name='Dext',
-    version='0.2.0',
+    version='0.3.0',
     description='minor extentions for django',
     long_description = open('README.rst').read(),
     url='https://github.com/Tiendil/dext',
@@ -11,7 +11,7 @@ setuptools.setup(
     author_email='a.eletsky@gmail.com',
     license='BSD',
     install_requires=[
-        "Django>=1.8",
+        "Django>=1.9",
         "Jinja2>=2.6",
     ],
     classifiers=[
@@ -28,7 +28,7 @@ setuptools.setup(
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
 
-        'Framework :: Django :: 1.8',
+        'Framework :: Django :: 1.9',
 
         'Natural Language :: English'],
     keywords=['django'],
