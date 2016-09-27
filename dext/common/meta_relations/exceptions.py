@@ -7,17 +7,17 @@ class MetaRelationsError(exceptions.DextError):
 
 
 class DuplicateRelationError(MetaRelationsError):
-    MSG = u'relation with such TYPE has been registered already: %(type)s'
+    MSG = 'relation with such TYPE has been registered already: %(type)s'
 
 class DuplicateTypeError(MetaRelationsError):
-    MSG = u'type with such TYPE has been registered already: %(type)s'
+    MSG = 'type with such TYPE has been registered already: %(type)s'
 
 
 class WrongTypeError(MetaRelationsError):
-    MSG = u'type with such TYPE has not been registered: %(type)s'
+    MSG = 'type with such TYPE has not been registered: %(type)s'
 
 class WrongObjectError(MetaRelationsError):
-    MSG = u'object %(object)s of type %(type)s is not exist'
+    MSG = 'object %(object)s of type %(type)s is not exist'
 
 class WrongUIDFormatError(MetaRelationsError):
-    MSG = u'wrong uid format: %(uid)s'
+    MSG = 'wrong uid format: %(uid)s'

@@ -58,7 +58,7 @@ def protector(uuid, directory=utils_settings.PID_DIRECTORY, directory_mode=utils
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
             if not capture(uuid, directory, directory_mode):
-                print 'process has been already running'
+                print('process has been already running')
                 return
 
             try:

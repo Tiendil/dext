@@ -24,7 +24,7 @@ class Settings(object):
         self.data = self._load_data()
 
     def __getitem__(self, key):
-        if not isinstance(key, basestring):
+        if not isinstance(key, str):
             raise SettingsException('wrong key type: %r' % key)
         if not key in self.data:
             raise SettingsException('unregistered key: %s' % key)
@@ -37,9 +37,9 @@ class Settings(object):
     def __setitem__(self, key, value):
         from dext.settings import models
 
-        if not isinstance(key, basestring):
+        if not isinstance(key, str):
             raise SettingsException('wrong key type: %r' % key)
-        if not isinstance(value, basestring):
+        if not isinstance(value, str):
             raise SettingsException('wrong value type: %r' % value)
 
         if not self.initialized:
@@ -56,7 +56,7 @@ class Settings(object):
     def __delitem__(self, key):
         from dext.settings import models
 
-        if not isinstance(key, basestring):
+        if not isinstance(key, str):
             raise SettingsException('wrong key type: %r' % key)
 
         if not self.initialized:

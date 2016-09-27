@@ -3,7 +3,7 @@
 import sys
 import time
 import logging
-import Queue
+import queue
 
 from django.conf import settings as project_settings
 from django import db
@@ -77,7 +77,7 @@ class BaseWorker(object):
                 if self.REFRESH_SETTINGS:
                     settings.refresh()
                 self.process_cmd(cmd.payload)
-            except Queue.Empty:
+            except queue.Empty:
                 if self.REFRESH_SETTINGS:
                     settings.refresh()
                 self.process_no_cmd()
@@ -122,7 +122,7 @@ class BaseWorker(object):
         if self.FULL_CMD_LOG:
             return data
 
-        return {key: value for key, value in data.iteritems() if not isinstance(value, dict)}
+        return {key: value for key, value in data.items() if not isinstance(value, dict)}
 
     def process_cmd(self, cmd):
         cmd_type = cmd['type']
@@ -154,7 +154,7 @@ class BaseWorker(object):
             try:
                 answer_cmd = self.answers_queue.get(block=True, timeout=timeout)
                 # answer_cmd.ack()
-            except Queue.Empty:
+            except queue.Empty:
                 raise exceptions.WaitAnswerTimeoutError(code=code, workers=workers, timeout=timeout)
 
             cmd = answer_cmd.payload

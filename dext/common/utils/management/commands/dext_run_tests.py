@@ -40,4 +40,4 @@ class Command(BaseCommand):
 
         result = run_django_command(['test', '--nomigrations', '--parallel', str(N)] + tests)
 
-        print 'test result: ', result
+        print('test result: ', result)

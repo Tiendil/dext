@@ -10,7 +10,7 @@ from django.apps import apps as django_apps
 def is_module_exists(module_path):
     try:
         return importlib.import_module(module_path)
-    except StandardError:
+    except Exception:
         return False
 
 
@@ -46,7 +46,7 @@ def automatic_discover(container, module_name):
 
                 try:
                     function(container, importlib.import_module('%s.%s' % (application.name, module_name)))
-                except StandardError:
+                except Exception:
                     if module_has_submodule(mod, module_name):
                         raise
 

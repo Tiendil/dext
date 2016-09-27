@@ -2,7 +2,7 @@
 import functools
 import contextlib
 
-from StringIO import StringIO
+from io import StringIO
 
 from django.core.handlers.wsgi import WSGIRequest
 from django.test import TestCase as DjangoTestCase, TransactionTestCase as DjangoTransactionTestCase
@@ -57,10 +57,10 @@ class TestCaseMixin(object):
         for text in texts:
             if isinstance(text, tuple):
                 substr, number = text
-                substr = unicode(substr)
+                substr = str(substr)
                 self.assertEqual((substr, content.count(substr)), (substr, number))
             else:
-                substr = unicode(text)
+                substr = str(text)
                 self.assertEqual((substr, substr in content), (substr, True))
 
     def check_xml_ok(self, *argv, **kwargs):

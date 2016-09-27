@@ -97,7 +97,7 @@ class Storage(BaseStorage):
         self.sync()
 
         if id_ not in self._data:
-            raise self.EXCEPTION(message=u'no object with id: %s' % id_)
+            raise self.EXCEPTION(message='no object with id: %s' % id_)
 
         return self._data[id_]
 
@@ -122,7 +122,7 @@ class Storage(BaseStorage):
     def all(self):
         self.sync()
 
-        return self._data.values()
+        return list(self._data.values())
 
     def __len__(self):
         self.sync()
@@ -139,7 +139,7 @@ class Storage(BaseStorage):
 
     def save_all(self):
         with self.postpone_version_update():
-            for record in self._data.values():
+            for record in list(self._data.values()):
                 self._save_object(record)
 
 

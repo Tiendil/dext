@@ -6,8 +6,8 @@ from django import forms
 
 class FormsException(Exception): pass
 
-HTML_WIDGET_WRAPPER = u'<div class="pgf-widget control-group">%(content)s</div>'
-HTML_ERROR_CONTAINER = u'<div class="pgf-form-field-marker-%(name)s pgf-error-container alert alert-error pgf-hidden"></div>'
+HTML_WIDGET_WRAPPER = '<div class="pgf-widget control-group">%(content)s</div>'
+HTML_ERROR_CONTAINER = '<div class="pgf-form-field-marker-%(name)s pgf-error-container alert alert-error pgf-hidden"></div>'
 
 
 def errors_container(self):
@@ -58,7 +58,7 @@ class Form(forms.Form):
 
         errors = super(Form, self).errors
 
-        for name, field in self.fields.items():
+        for name, field in list(self.fields.items()):
 
             if not hasattr(field, 'get_extra_errors'):
                 continue

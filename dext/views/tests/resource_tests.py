@@ -59,11 +59,11 @@ class ResourceTests(TestCase):
 
     def test_json_error(self):
         resource = ResourceTestClass(self.fake_request())
-        self.check_ajax_error(resource.json_error('some.error.code', u'error text'), 'some.error.code', content_type='application/json', encoding='utf-8')
+        self.check_ajax_error(resource.json_error('some.error.code', 'error text'), 'some.error.code', content_type='application/json', encoding='utf-8')
 
     def test_json_errors(self):
         resource = ResourceTestClass(self.fake_request())
-        self.check_ajax_error(resource.json_error('some.error.code', [u'error text']), 'some.error.code', content_type='application/json', encoding='utf-8')
+        self.check_ajax_error(resource.json_error('some.error.code', ['error text']), 'some.error.code', content_type='application/json', encoding='utf-8')
 
     def test_css(self):
         resource = ResourceTestClass(self.fake_request())
@@ -78,10 +78,10 @@ class ResourceTests(TestCase):
 
     def test_auto_error(self):
         resource = ResourceTestClass(self.fake_request(method='post'))
-        self.check_ajax_error(resource.auto_error('some.error.code', u'error text'), 'some.error.code', content_type='application/json', encoding='utf-8')
+        self.check_ajax_error(resource.auto_error('some.error.code', 'error text'), 'some.error.code', content_type='application/json', encoding='utf-8')
 
         resource = ResourceTestClass(self.fake_request(method='get'))
-        self.check_ajax_error(resource.auto_error('some.error.code', u'error text', response_type='json'), 'some.error.code', content_type='application/json', encoding='utf-8')
+        self.check_ajax_error(resource.auto_error('some.error.code', 'error text', response_type='json'), 'some.error.code', content_type='application/json', encoding='utf-8')
 
         resource = ResourceTestClass(self.fake_request(method='get', ajax=True))
-        self.check_ajax_error(resource.auto_error('some.error.code', u'error text', response_type='json'), 'some.error.code', content_type='application/json', encoding='utf-8')
+        self.check_ajax_error(resource.auto_error('some.error.code', 'error text', response_type='json'), 'some.error.code', content_type='application/json', encoding='utf-8')

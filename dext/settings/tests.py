@@ -55,10 +55,10 @@ class SettingsTest(testcase.TestCase):
 
     def test_refresh(self):
         Setting.objects.create(key='key 1', value='value 1')
-        Setting.objects.create(key=u'ключ 2', value=u'значение 2')
+        Setting.objects.create(key='ключ 2', value='значение 2')
         self.settings.refresh()
         self.assertEqual(self.settings['key 1'], 'value 1')
-        self.assertEqual(self.settings[u'ключ 2'], u'значение 2')
+        self.assertEqual(self.settings['ключ 2'], 'значение 2')
 
     def test_model_delete(self):
         model = Setting.objects.create(key='key 1', value='value 1')

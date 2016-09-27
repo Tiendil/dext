@@ -35,7 +35,7 @@ class Command(BaseCommand):
             worker.clean_queues()
 
         for worker in self.workers:
-            print 'start %s' % worker.name
+            print('start %s' % worker.name)
             with open(os.devnull, 'w') as devnull:
                 subprocess.Popen(['django-admin.py', 'dext_amqp_worker', '-w', worker.name, '--settings', '%s.settings' % project_settings.PROJECT_MODULE],
                                  stdin=devnull, stdout=devnull, stderr=devnull)
@@ -45,11 +45,11 @@ class Command(BaseCommand):
         for worker in reversed(self.workers):
 
             if worker.STOP_SIGNAL_REQUIRED and pid.check(worker.pid):
-                print '%s found, send stop command' % worker.name
+                print('%s found, send stop command' % worker.name)
                 worker.cmd_stop()
-                print 'waiting answer'
+                print('waiting answer')
                 worker.stop_queue.get(block=True)
-                print 'answer received'
+                print('answer received')
 
         while any(pid.check(worker.pid) for worker in self.workers):
             time.sleep(0.1)
@@ -57,7 +57,7 @@ class Command(BaseCommand):
 
     def force_stop(self):
         for worker in reversed(self.workers):
-            print 'force stop %s' % worker.name
+            print('force stop %s' % worker.name)
             pid.force_kill(worker.name)
 
     def before_start(self): pass
@@ -83,19 +83,19 @@ class Command(BaseCommand):
             self.before_start()
             self.start()
             self.after_start()
-            print 'infrastructure started'
+            print('infrastructure started')
 
         elif command == 'stop':
             self.before_stop()
             self.stop()
             self.after_stop()
-            print 'infrastructure stopped'
+            print('infrastructure stopped')
 
         elif command == 'force_stop':
             self.before_force_stop()
             self.force_stop()
             self.after_force_stop()
-            print 'infrastructure stopped (force)'
+            print('infrastructure stopped (force)')
 
         elif command == 'restart':
             self.before_stop()
@@ -105,10 +105,10 @@ class Command(BaseCommand):
             self.before_start()
             self.start()
             self.after_start()
-            print 'infrastructure restarted'
+            print('infrastructure restarted')
 
         elif command == 'status':
-            print 'command "%s" does not implemented yet ' % command
+            print('command "%s" does not implemented yet ' % command)
 
         else:
-            print 'command did not specified'
+            print('command did not specified')

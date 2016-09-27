@@ -1,6 +1,6 @@
 # coding: utf8
 import copy
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
 from django.core.urlresolvers import reverse
 from django.conf import settings as project_settings
@@ -13,7 +13,7 @@ class UrlBuilder(object):
         self.protocol = protocol
 
     @property
-    def arguments_names(self): return self.default_arguments.keys()
+    def arguments_names(self): return list(self.default_arguments.keys())
 
     def __call__(self, **kwargs):
         if not len(self.default_arguments) and not len(kwargs):
@@ -28,7 +28,7 @@ class UrlBuilder(object):
 def url(*args, **kwargs):
     base_url = reverse(args[0], args=args[1:])
     if kwargs:
-        query = urllib.urlencode(kwargs)
+        query = urllib.parse.urlencode(kwargs)
         base_url = '%s?%s' % (base_url, query)
     return base_url
 
@@ -46,7 +46,7 @@ def modify_url(url, query=()):
         url, hash = url.split('#')
 
     if query:
-        query = urllib.urlencode(query)
+        query = urllib.parse.urlencode(query)
 
         url += '&' if '?' in url else '?'
 

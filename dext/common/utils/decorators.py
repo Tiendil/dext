@@ -28,7 +28,7 @@ def retry_on_exception(max_retries=None, exceptions=[Exception]):
                 retries_number += 1
                 try:
                     return func(*argv, **kwargs)
-                except Exception, e:
+                except Exception as e:
 
                     if retries_number == max_retries:
                         raise

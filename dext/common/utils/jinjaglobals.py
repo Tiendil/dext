@@ -1,5 +1,5 @@
 # coding: utf-8
-from __future__ import absolute_import
+
 
 from dext.common.utils import jinja2
 from dext.common.utils import urls
@@ -11,7 +11,7 @@ import collections
 
 @jinja2.jinjaglobal
 def jmap(func, *iterables):
-    return map(func, *iterables)
+    return list(map(func, *iterables))
 
 @jinja2.jinjaglobal
 @jinja2.contextfunction
@@ -43,7 +43,7 @@ def up_first(value):
 
 @jinja2.jinjaglobal
 def is_sequence(variable):
-    return not isinstance(variable, basestring) and isinstance(variable, collections.Iterable)
+    return not isinstance(variable, str) and isinstance(variable, collections.Iterable)
 
 @jinja2.jinjaglobal
 def url(*args, **kwargs): return urls.url(*args, **kwargs)

@@ -58,7 +58,7 @@ class DispatchInfo(object):
 
         for arg in self.args:
 
-            if isinstance(arg, basestring) or not hasattr(arg, '__iter__'):
+            if isinstance(arg, str) or not hasattr(arg, '__iter__'):
                 key = arg
                 if arg not in request.GET: return False
 
@@ -219,7 +219,7 @@ class BaseResource(object):
 
     def js_error(self, code, messages=None, mimetype='application/x-javascript', charset='utf-8'):
         data = self.error(code=code, messages=messages)
-        response = HttpResponse(u'function DextErrorMessage(){return %s;};' % s11n.to_json(data),
+        response = HttpResponse('function DextErrorMessage(){return %s;};' % s11n.to_json(data),
                                 content_type='%s; charset=%s' % (mimetype, charset))
         return response
 
@@ -227,7 +227,7 @@ class BaseResource(object):
         data = {'status': 'error',
                 'code': code}
 
-        if isinstance(messages, basestring):
+        if isinstance(messages, str):
             data['error'] = messages
         else:
             data['errors'] = messages

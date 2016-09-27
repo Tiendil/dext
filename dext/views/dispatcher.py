@@ -6,7 +6,7 @@ from .resources import ResourceException
 
 def create_handler_view(resource_class, handler):
 
-    if isinstance(handler, basestring):
+    if isinstance(handler, str):
         handler_path = '%s::%s' % (resource_class.__name__, handler)
         result_method_name = handler # TODO: result_method_name - is some fucking variable name, since 'handler_name' not seen in handler_view
     else:

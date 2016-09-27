@@ -12,6 +12,7 @@ from dext.common.utils import relations
 from dext.common.utils import s11n
 from dext.common.utils.conf import utils_settings
 from dext.common.utils import jinja2
+import collections
 
 # for external code
 ViewError = exceptions.ViewError
@@ -171,7 +172,7 @@ class Resource(object):
 
         methods = kwargs.get('method', ('get',))
 
-        if isinstance(methods, basestring):
+        if isinstance(methods, str):
             methods = [methods]
 
         methods = [m.upper() for m in methods]
@@ -230,7 +231,7 @@ class BaseViewProcessor(object):
 
             setattr(self, name, value)
 
-        for argument_name, value in kwargs.iteritems():
+        for argument_name, value in kwargs.items():
             argument = getattr(self, 'ARG_%s' % argument_name.upper())
             if not isinstance(argument, ProcessorArgument):
                 raise exceptions.WrongProcessorArgumentError(processor=self, argument=argument_name)
@@ -264,8 +265,8 @@ class HttpMethodProcessor(BaseViewProcessor):
 
     def preprocess(self, context):
         if context.django_request.method not in self.allowed_methods:
-            raise ViewError(code=u'common.wrong_http_method',
-                            message=u'К адресу нельзя обратиться с помощью HTTP метода "%(method)s"' % {'method': context.django_request.method})
+            raise ViewError(code='common.wrong_http_method',
+                            message='К адресу нельзя обратиться с помощью HTTP метода "%(method)s"' % {'method': context.django_request.method})
 
         context.django_method = relations.HTTP_METHOD.index_name[context.django_request.method]
 
@@ -399,7 +400,7 @@ class MapArgumentProcessor(ArgumentProcessor):
 
     def parse(self, context, raw_value):
 
-        mapping = self.mapping if not callable(self.mapping) else self.mapping()
+        mapping = self.mapping if not isinstance(self.mapping, collections.Callable) else self.mapping()
 
         if raw_value not in mapping:
             self.raise_wrong_value()
@@ -448,7 +449,7 @@ class DebugProcessor(BaseViewProcessor):
         context.debug = project_settings.DEBUG
 
         if not context.debug:
-            raise ViewError(code='common.debug_required', message=u'Функционал доступен только в режиме отладки')
+            raise ViewError(code='common.debug_required', message='Функционал доступен только в режиме отладки')
 
 
 class BaseResponse(object):
@@ -510,10 +511,10 @@ class PageError(Page):
             else:
                 kwargs['template'] = utils_settings.PAGE_ERROR_TEMPLATE
 
-        if isinstance(errors, basestring):
+        if isinstance(errors, str):
             error = errors
         else:
-            error = errors.values()[0][0]
+            error = list(errors.values())[0][0]
 
         if 'content' not in kwargs:
             kwargs['content'] = {}
@@ -578,7 +579,7 @@ class AjaxError(Ajax):
                 'code': self.code,
                 'data': self.info}
 
-        if isinstance(self.errors, basestring):
+        if isinstance(self.errors, str):
             data['error'] = self.errors
         else:
             data['errors'] = self.errors

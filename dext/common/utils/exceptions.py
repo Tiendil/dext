@@ -9,7 +9,7 @@ class DextError(Exception):
 
 
 class ViewError(DextError):
-    MSG = u'error [%(code)s] in view: %(message)s'
+    MSG = 'error [%(code)s] in view: %(message)s'
 
     @property
     def code(self): return self.arguments['code']
@@ -26,10 +26,10 @@ class InternalViewError(DextError):
 
 
 class DuplicateViewNameError(InternalViewError):
-    MSG = u'duplicate view name "%(name)s"'
+    MSG = 'duplicate view name "%(name)s"'
 
 class SingleNameMustBeSpecifiedError(InternalViewError):
-    MSG = u'single argument name must be specified (not less, not more)'
+    MSG = 'single argument name must be specified (not less, not more)'
 
 class WrongProcessorArgumentError(InternalViewError):
-    MSG = u'processor "%(processor)s" received wrong argument name "%(argument)s"'
+    MSG = 'processor "%(processor)s" received wrong argument name "%(argument)s"'

@@ -86,7 +86,7 @@ class TypedChoiceField(forms.TypedChoiceField):
             try:
                 return coerce_method(value)
             except:
-                raise forms.ValidationError(u'Неверный формат поля')
+                raise forms.ValidationError('Неверный формат поля')
 
         return wrapper
 
@@ -99,9 +99,9 @@ class RelationField(TypedChoiceField):
             filter = kwargs.pop('filter') if 'filter' in kwargs else lambda r: True
             sort_key = kwargs.pop('sort_key') if 'sort_key' in kwargs else None
 
-            kwargs['choices'] = [(record, record.text) for record in relation.records if filter(record)]
+            kwargs['choices'] = [(record, record.text) for record in relation.records if list(filter(record))]
             if not kwargs.get('required', True):
-                kwargs['choices'] = [(u'', u'---')] + kwargs['choices']
+                kwargs['choices'] = [('', '---')] + kwargs['choices']
             if sort_key:
                 kwargs['choices'].sort(key=sort_key)
         if 'coerce' not in kwargs:
@@ -154,7 +154,7 @@ class JsonField(TextField):
         try:
             return s11n.from_json(value)
         except:
-            raise forms.ValidationError(u'Неверный формат json')
+            raise forms.ValidationError('Неверный формат json')
 
     def prepare_value(self, value):
 

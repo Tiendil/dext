@@ -16,6 +16,6 @@ def raw_save(record):
 
     sql.append('WHERE id = %s')
     args.append(record.id)
-    sql = u' '.join(sql)
+    sql = ' '.join(sql)
 
     cursor.execute(sql, args)

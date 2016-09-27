@@ -45,7 +45,7 @@ def autodiscover_types(container, module):
 
 
 def create_uid(type_id, object_id):
-    return u'%s#%s' % (type_id, object_id)
+    return '%s#%s' % (type_id, object_id)
 
 def get_object(type_id, object_id):
     if type_id not in _TYPES:

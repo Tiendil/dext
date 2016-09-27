@@ -2,7 +2,7 @@
 
 import time
 import socket
-from Queue import Empty
+from queue import Empty
 
 from kombu import Connection as KombuConnection # pylint: disable=E0611
 from kombu.simple import SimpleQueue as KombuSimpleQueue

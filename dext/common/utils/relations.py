@@ -4,15 +4,15 @@ from rels.django import DjangoEnum
 
 
 class HTTP_METHOD(DjangoEnum):
-    records = ( ('CONNECT', 0, u'CONNECT'),
-                ('DELETE', 1, u'DELETE'),
-                ('GET', 2, u'GET'),
-                ('HEAD', 3, u'HEAD'),
-                ('OPTIONS', 4, u'OPTIONS'),
-                ('POST', 5, u'POST'),
-                ('PUT', 6, u'PUT'),
-                ('PATCH', 7, u'PATCH'),
-                ('TRACE', 8, u'TRACE') )
+    records = ( ('CONNECT', 0, 'CONNECT'),
+                ('DELETE', 1, 'DELETE'),
+                ('GET', 2, 'GET'),
+                ('HEAD', 3, 'HEAD'),
+                ('OPTIONS', 4, 'OPTIONS'),
+                ('POST', 5, 'POST'),
+                ('PUT', 6, 'PUT'),
+                ('PATCH', 7, 'PATCH'),
+                ('TRACE', 8, 'TRACE') )
 
 
 
