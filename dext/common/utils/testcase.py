@@ -73,7 +73,7 @@ class TestCaseMixin(object):
         self.assertTrue(encoding in response['Content-Type'])
 
         self.assertEqual(response.status_code, 200)
-        content = s11n.from_json(response.content)
+        content = s11n.from_json(response.content.decode(encoding))
 
         self.assertEqual(content['status'], 'ok')
 
@@ -88,7 +88,7 @@ class TestCaseMixin(object):
         self.assertTrue(encoding in response['Content-Type'])
 
         self.assertEqual(response.status_code, 200)
-        data = s11n.from_json(response.content)
+        data = s11n.from_json(response.content.decode(encoding))
         self.assertEqual(data['status'], 'error')
         self.assertEqual(data['code'], code)
 
@@ -98,7 +98,7 @@ class TestCaseMixin(object):
         self.assertTrue(encoding in response['Content-Type'])
 
         self.assertEqual(response.status_code, 200)
-        data = s11n.from_json(response.content)
+        data = s11n.from_json(response.content.decode(encoding))
         self.assertEqual(data['status'], 'processing')
         if status_url:
             self.assertEqual(data['status_url'], status_url)
