@@ -11,8 +11,8 @@ setuptools.setup(
     author_email='a.eletsky@gmail.com',
     license='BSD',
     install_requires=[
-        "Django>=1.9",
-        "Jinja2>=2.6",
+        "Django==1.9.10",
+        "Jinja2>=2.6"
     ],
     classifiers=[
         'Development Status :: 5 - Production/Stable',

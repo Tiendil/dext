@@ -45,7 +45,9 @@ class Command(BaseCommand):
         try:
             signal.signal(signal.SIGTERM, worker.on_sigterm)
 
-            worker.initialize()
+            if worker.initialize() is False:
+                worker.logger.info('worker stopped due method initilize return False')
+                return
 
             if project_settings.NEWRELIC_ENABLED:
                 initialize_newrelic()
