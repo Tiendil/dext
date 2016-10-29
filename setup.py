@@ -13,7 +13,7 @@ setuptools.setup(
     install_requires=[
         'Django==1.10.2',
         'argon2_cffi==16.2.0',
-        'Jinja2>=2.6'
+        'Jinja2>=2.8'
     ],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
