@@ -1,7 +1,6 @@
 # coding: utf-8
 import sys
 import signal
-import optparse
 import traceback
 
 from django.core.management.base import BaseCommand
@@ -19,11 +18,9 @@ class Command(BaseCommand):
 
     help = 'run specified workers'
 
-    option_list = BaseCommand.option_list + ( optparse.make_option('-w', '--worker',
-                                                                   action='store',
-                                                                   type=str,
-                                                                   dest='worker',
-                                                                   help='worker name'), )
+    def add_arguments(self, parser):
+        super(Command, self).add_arguments(parser)
+        parser.add_argument('-w', '--worker', action='store', type=str, dest='worker', help='worker name')
 
     requires_model_validation = False
 

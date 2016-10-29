@@ -8,6 +8,7 @@ from django.core.handlers.wsgi import WSGIRequest
 from django.test import TestCase as DjangoTestCase, TransactionTestCase as DjangoTransactionTestCase
 from django.contrib.auth.models import AnonymousUser
 from django.test.client import RequestFactory
+from django.middleware import csrf as django_csrf
 
 from dext.common.utils import s11n
 
@@ -25,7 +26,9 @@ def make_request_decorator(method):
 
 class TestCaseMixin(object):
 
-    def fake_request(self, path='/', user=None, method='GET', csrf=None, ajax=False):
+    def fake_request(self, path='/', user=None, method='GET', ajax=False, **kwargs):
+        csrf = kwargs.get('csrf', django_csrf._get_new_csrf_token())
+
         request = WSGIRequest( { 'REQUEST_METHOD': method.upper(),
                                  'PATH_INFO': path,
                                  'wsgi.input': StringIO(),
