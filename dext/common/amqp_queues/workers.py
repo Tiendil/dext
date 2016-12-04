@@ -14,15 +14,6 @@ from dext.common.amqp_queues.connection import connection
 from dext.settings import settings
 
 
-def run_with_newrelic(method, method_data):
-    import newrelic.agent
-
-    application = newrelic.agent.application()
-    name = newrelic.agent.callable_name(method)
-
-    with newrelic.agent.BackgroundTask(application, name):
-        return method(**method_data)
-
 _NEXT_WORKER_NUMBER = 0
 
 class BaseWorker(object):
@@ -147,12 +138,7 @@ class BaseWorker(object):
             return
 
         try:
-            cmd = self.commands[cmd_type]
-
-            if project_settings.NEWRELIC_ENABLED:
-                run_with_newrelic(cmd, cmd_data)
-            else:
-                cmd(**cmd_data)
+            self.commands[cmd_type](**cmd_data)
         except Exception: # pylint: disable=W0703
             self.exception_raised = True
             self.logger.error('Exception in worker "%r"' % self,

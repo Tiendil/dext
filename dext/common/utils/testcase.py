@@ -2,6 +2,8 @@
 import functools
 import contextlib
 
+from unittest import mock
+
 from io import StringIO
 
 from django.core.handlers.wsgi import WSGIRequest
@@ -144,6 +146,20 @@ class TestCaseMixin(object):
         old_value = callback()
         yield
         self.assertTrue(callback() < old_value)
+
+    @contextlib.contextmanager
+    def check_calls_count(self, name, count):
+        with mock.patch(name) as mocked:
+            yield
+        self.assertEqual(mocked.call_count, count)
+
+
+    @contextlib.contextmanager
+    def check_calls_exists(self, name):
+        with mock.patch(name) as mocked:
+            yield
+        self.assertGreater(mocked.call_count, 0)
+
 
     def check_serialization(self, obj):
         obj_data = obj.serialize()

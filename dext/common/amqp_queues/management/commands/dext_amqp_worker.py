@@ -9,11 +9,6 @@ from django.conf import settings as project_settings
 from dext.common.amqp_queues import environment
 
 
-def initialize_newrelic():
-    import newrelic.agent
-    newrelic.agent.initialize(project_settings.NEWRELIC_CONF_PATH)
-
-
 class Command(BaseCommand):
 
     help = 'run specified workers'
@@ -45,9 +40,6 @@ class Command(BaseCommand):
             if worker.initialize() is False:
                 worker.logger.info('worker stopped due method initilize return False')
                 return
-
-            if project_settings.NEWRELIC_ENABLED:
-                initialize_newrelic()
 
             worker.run()
 
