@@ -99,7 +99,7 @@ class RelationField(TypedChoiceField):
             filter = kwargs.pop('filter') if 'filter' in kwargs else lambda r: True
             sort_key = kwargs.pop('sort_key') if 'sort_key' in kwargs else None
 
-            kwargs['choices'] = [(record, record.text) for record in relation.records if list(filter(record))]
+            kwargs['choices'] = [(record, record.text) for record in relation.records if filter(record)]
             if not kwargs.get('required', True):
                 kwargs['choices'] = [('', '---')] + kwargs['choices']
             if sort_key:

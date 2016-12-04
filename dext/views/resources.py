@@ -22,10 +22,10 @@ def handler(*path, **params):
     @functools.wraps(handler)
     def decorator(func):
 
-        if hasattr(method, '__iter__'):
-            methods = list(method)
-        else:
+        if isinstance(method, str):
             methods = [method]
+        else:
+            methods = list(method)
 
         expected_args, expected_vargs, expected_kwargs, expected_defaults = inspect.getargspec(func)
 

@@ -14,15 +14,6 @@ from dext.common.amqp_queues.connection import connection
 from dext.settings import settings
 
 
-def run_with_newrelic(method, method_data):
-    import newrelic.agent
-
-    application = newrelic.agent.application()
-    name = newrelic.agent.callable_name(method)
-
-    with newrelic.agent.BackgroundTask(application, name):
-        return method(**method_data)
-
 _NEXT_WORKER_NUMBER = 0
 
 class BaseWorker(object):
@@ -31,7 +22,7 @@ class BaseWorker(object):
     LOGGER_PREFIX = None
     REFRESH_SETTINGS = True
     FULL_CMD_LOG = False
-    GET_CMD_TIMEOUT = 9999999
+    GET_CMD_TIMEOUT = 1
     NO_CMD_TIMEOUT = 0
 
     @classmethod
@@ -40,12 +31,10 @@ class BaseWorker(object):
         _NEXT_WORKER_NUMBER += 1
         return _NEXT_WORKER_NUMBER
 
-    def __init__(self, name, groups=None):
+    def __init__(self, name):
         self.name = name
 
         self.number = self.get_next_number()
-
-        self.groups = set() if groups is None else set(groups)
 
         self.command_queue = connection.create_simple_buffer('%s_command' % self.name, no_ack=True)
         self.stop_queue = connection.create_simple_buffer('%s_stop' % self.name, no_ack=True) if self.STOP_SIGNAL_REQUIRED else None
@@ -61,18 +50,25 @@ class BaseWorker(object):
 
         self.prepair_commands_map()
 
-    @property
-    def pid(self): return self.name
+    def on_sigterm(self, signal_code, frame):
+        if self.logger:
+            self.logger.info('SIGTERM received')
+
+        if self.STOP_SIGNAL_REQUIRED:
+            if self.logger:
+                self.logger.info('set stop_required flag')
+            self.stop_required = True
+        else:
+            if self.logger:
+                self.logger.info('do not set stop_required flag: worker does not process stop signals')
+
 
     def run(self):
         while not self.exception_raised and not self.stop_required:
             try:
                 db.reset_queries()
 
-                if self.GET_CMD_TIMEOUT > 0:
-                    cmd = self.command_queue.get(block=True, timeout=self.GET_CMD_TIMEOUT)
-                else:
-                    cmd = self.command_queue.get_nowait()
+                cmd = self.command_queue.get(block=True, timeout=self.GET_CMD_TIMEOUT)
 
                 if self.REFRESH_SETTINGS:
                     settings.refresh()
@@ -83,6 +79,13 @@ class BaseWorker(object):
                 self.process_no_cmd()
                 if self.NO_CMD_TIMEOUT:
                     time.sleep(self.NO_CMD_TIMEOUT)
+
+        self.on_stop()
+
+        self.logger.info('loop stopped')
+
+    def on_stop(self):
+        pass
 
     def process_no_cmd(self):
         pass
@@ -135,12 +138,7 @@ class BaseWorker(object):
             return
 
         try:
-            cmd = self.commands[cmd_type]
-
-            if project_settings.NEWRELIC_ENABLED:
-                run_with_newrelic(cmd, cmd_data)
-            else:
-                cmd(**cmd_data)
+            self.commands[cmd_type](**cmd_data)
         except Exception: # pylint: disable=W0703
             self.exception_raised = True
             self.logger.error('Exception in worker "%r"' % self,

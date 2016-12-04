@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
 from .resources import ResourceException
 
@@ -58,12 +58,11 @@ def create_handler_view(resource_class, handler):
 
 
 def resource_patterns(resource_class, args={}):
-    patterns_args = ['']
+    patterns_args = []
 
     for handler in resource_class.get_handlers():
         patterns_args.append( url(handler.url_regexp,
                                   create_handler_view(resource_class, handler),
                                   name=handler.name,
                                   kwargs=args) )
-
-    return patterns(*patterns_args)
+    return patterns_args

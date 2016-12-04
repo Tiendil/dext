@@ -2,7 +2,7 @@
 
 import functools
 
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponsePermanentRedirect
 from django.conf import settings as project_settings
 from django.middleware import csrf
@@ -28,7 +28,7 @@ class Context(object):
 
 
 class View(object):
-    __slots__ = ('processors', 'logic', 'name', 'path', 'resource', '__doc__', '__name__')
+    __slots__ = ('processors', 'logic', 'name', 'path', 'resource', '__doc__')
 
     def __init__(self, logic):
         self.processors = []
@@ -38,7 +38,10 @@ class View(object):
         self.resource = None
 
         self.__doc__ = logic.__doc__
-        self.__name__ = logic.__name__
+
+        # TODO: uncomment after https://bugs.python.org/issue24329 will be fixed
+        # self.__name__ = logic.__name__
+        # self.__qualname__ = logic.__qualname__
 
     def get_processors(self):
         return self.resource.get_processors() + self.processors
@@ -140,8 +143,6 @@ class View(object):
         return len(self.path) < len(other.path)
 
 
-
-
 class Resource(object):
     __slots__ = ('name', 'processors', 'views', 'parent', 'children')
 
@@ -207,7 +208,7 @@ class Resource(object):
         for view in sorted(self.views.values()):
             urls.append(view.get_url_record())
 
-        return patterns('', *urls)
+        return urls
 
 
 class ProcessorArgument(object):
@@ -268,7 +269,7 @@ class HttpMethodProcessor(BaseViewProcessor):
             raise ViewError(code='common.wrong_http_method',
                             message='К адресу нельзя обратиться с помощью HTTP метода "%(method)s"' % {'method': context.django_request.method})
 
-        context.django_method = relations.HTTP_METHOD.index_name[context.django_request.method]
+        context.django_method = getattr(relations.HTTP_METHOD, context.django_request.method)
 
 
 class CSRFProcessor(BaseViewProcessor):

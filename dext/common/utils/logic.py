@@ -9,7 +9,7 @@ def normalize_email(email):
 
 
 def run_django_command(command):
-    return subprocess.call(['django-admin.py']+command+['--settings', '%s.settings' % project_settings.PROJECT_MODULE])
+    return subprocess.call(['django-admin']+command+['--settings', '%s.settings' % project_settings.PROJECT_MODULE])
 
 
 def get_ip_from_request(request):

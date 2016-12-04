@@ -2,12 +2,15 @@
 import functools
 import contextlib
 
+from unittest import mock
+
 from io import StringIO
 
 from django.core.handlers.wsgi import WSGIRequest
 from django.test import TestCase as DjangoTestCase, TransactionTestCase as DjangoTransactionTestCase
 from django.contrib.auth.models import AnonymousUser
 from django.test.client import RequestFactory
+from django.middleware import csrf as django_csrf
 
 from dext.common.utils import s11n
 
@@ -25,7 +28,9 @@ def make_request_decorator(method):
 
 class TestCaseMixin(object):
 
-    def fake_request(self, path='/', user=None, method='GET', csrf=None, ajax=False):
+    def fake_request(self, path='/', user=None, method='GET', ajax=False, **kwargs):
+        csrf = kwargs.get('csrf', django_csrf._get_new_csrf_token())
+
         request = WSGIRequest( { 'REQUEST_METHOD': method.upper(),
                                  'PATH_INFO': path,
                                  'wsgi.input': StringIO(),
@@ -73,7 +78,7 @@ class TestCaseMixin(object):
         self.assertTrue(encoding in response['Content-Type'])
 
         self.assertEqual(response.status_code, 200)
-        content = s11n.from_json(response.content)
+        content = s11n.from_json(response.content.decode(encoding))
 
         self.assertEqual(content['status'], 'ok')
 
@@ -88,7 +93,7 @@ class TestCaseMixin(object):
         self.assertTrue(encoding in response['Content-Type'])
 
         self.assertEqual(response.status_code, 200)
-        data = s11n.from_json(response.content)
+        data = s11n.from_json(response.content.decode(encoding))
         self.assertEqual(data['status'], 'error')
         self.assertEqual(data['code'], code)
 
@@ -98,7 +103,7 @@ class TestCaseMixin(object):
         self.assertTrue(encoding in response['Content-Type'])
 
         self.assertEqual(response.status_code, 200)
-        data = s11n.from_json(response.content)
+        data = s11n.from_json(response.content.decode(encoding))
         self.assertEqual(data['status'], 'processing')
         if status_url:
             self.assertEqual(data['status_url'], status_url)
@@ -141,6 +146,20 @@ class TestCaseMixin(object):
         old_value = callback()
         yield
         self.assertTrue(callback() < old_value)
+
+    @contextlib.contextmanager
+    def check_calls_count(self, name, count):
+        with mock.patch(name) as mocked:
+            yield
+        self.assertEqual(mocked.call_count, count)
+
+
+    @contextlib.contextmanager
+    def check_calls_exists(self, name):
+        with mock.patch(name) as mocked:
+            yield
+        self.assertGreater(mocked.call_count, 0)
+
 
     def check_serialization(self, obj):
         obj_data = obj.serialize()
