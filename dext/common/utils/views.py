@@ -333,7 +333,7 @@ class FormProcessor(BaseViewProcessor):
 
 
 class ArgumentProcessor(BaseViewProcessor):
-    __slots__ = ('error_message', 'get_name', 'post_name', 'url_name', 'context_name', 'default_value')
+    __slots__ = ('error_message', 'get_name', 'post_name', 'url_name', 'context_name', 'default_value', 'in_list')
     ARG_CONTEXT_NAME = ProcessorArgument()
     ARG_ERROR_MESSAGE = ProcessorArgument()
     ARG_GET_NAME = ProcessorArgument(default=None)
@@ -341,6 +341,7 @@ class ArgumentProcessor(BaseViewProcessor):
     ARG_URL_NAME = ProcessorArgument(default=None)
     ARG_CONTEXT_NAME = ProcessorArgument()
     ARG_DEFAULT_VALUE = ProcessorArgument()
+    ARG_IN_LIST = ProcessorArgument(default=False)
 
     def initialize(self):
         super(ArgumentProcessor, self).initialize()
@@ -355,9 +356,15 @@ class ArgumentProcessor(BaseViewProcessor):
             return context.django_url_argumens.get(self.url_name)
 
         if self.get_name:
-            return context.django_request.GET.get(self.get_name)
+            if self.in_list:
+                return context.django_request.GET.getlist(self.get_name)
+            else:
+                return context.django_request.GET.get(self.get_name)
 
-        return context.django_request.POST.get(self.post_name)
+        if self.in_list:
+            return context.django_request.POST.getlist(self.post_name)
+        else:
+            return context.django_request.POST.get(self.post_name)
 
     def parse(self, context, raw_value):
         raise NotImplementedError()
