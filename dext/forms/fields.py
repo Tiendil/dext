@@ -162,3 +162,7 @@ class JsonField(TextField):
             return ''
 
         return s11n.to_json(value)
+
+
+@pgf
+class UUIDField(forms.UUIDField): pass

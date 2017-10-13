@@ -367,7 +367,7 @@ class ArgumentProcessor(BaseViewProcessor):
             return context.django_request.POST.get(self.post_name)
 
     def parse(self, context, raw_value):
-        raise NotImplementedError()
+        return raw_value
 
     def _argument_name(self):
         if self.url_name:
