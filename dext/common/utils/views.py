@@ -17,6 +17,7 @@ import collections
 # for external code
 ViewError = exceptions.ViewError
 
+
 class Context(object):
 
     def __setattr__(self, name, value):
@@ -28,7 +29,7 @@ class Context(object):
 
 
 class View(object):
-    __slots__ = ('processors', 'logic', 'name', 'path', 'resource', '__doc__')
+    __slots__ = ('processors', 'logic', 'name', 'path', 'resource', '__doc__', 'csrf_exempt')
 
     def __init__(self, logic):
         self.processors = []
@@ -36,6 +37,7 @@ class View(object):
         self.name = None
         self.path = None
         self.resource = None
+        self.csrf_exempt = getattr(logic, 'csrf_exempt', False)
 
         self.__doc__ = logic.__doc__
 
@@ -109,6 +111,7 @@ class View(object):
         return error_response_class(code=error.code,
                                     errors=error.message,
                                     context=context,
+                                    http_status=error.http_status,
                                     info=info).complete(context)
 
 

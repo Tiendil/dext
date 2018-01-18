@@ -1,5 +1,8 @@
 # coding: utf-8
 
+from . import relations
+
+
 class DextError(Exception):
     MSG = None
 
@@ -13,6 +16,9 @@ class ViewError(DextError):
 
     @property
     def code(self): return self.arguments['code']
+
+    @property
+    def http_status(self): return self.arguments.get('http_status', relations.HTTP_STATUS.OK)
 
     @property
     def message(self): return self.arguments['message']
