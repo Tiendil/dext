@@ -471,7 +471,7 @@ class BaseResponse(object):
 
     def __init__(self,
                  http_mimetype,
-                 http_status = relations.HTTP_STATUS.OK,
+                 http_status=relations.HTTP_STATUS.OK,
                  http_charset='utf-8',
                  content=None):
         self.http_status = http_status

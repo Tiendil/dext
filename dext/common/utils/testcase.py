@@ -88,11 +88,11 @@ class TestCaseMixin(object):
         return content.get('data')
 
 
-    def check_ajax_error(self, response, code, content_type='application/json', encoding='utf-8'):
+    def check_ajax_error(self, response, code, content_type='application/json', encoding='utf-8', status_code=200):
         self.assertTrue(content_type in response['Content-Type'])
         self.assertTrue(encoding in response['Content-Type'])
 
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, status_code)
         data = s11n.from_json(response.content.decode(encoding))
         self.assertEqual(data['status'], 'error')
         self.assertEqual(data['code'], code)
