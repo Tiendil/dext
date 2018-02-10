@@ -88,11 +88,11 @@ class TestCaseMixin(object):
         return content.get('data')
 
 
-    def check_ajax_error(self, response, code, content_type='application/json', encoding='utf-8'):
+    def check_ajax_error(self, response, code, content_type='application/json', encoding='utf-8', status_code=200):
         self.assertTrue(content_type in response['Content-Type'])
         self.assertTrue(encoding in response['Content-Type'])
 
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, status_code)
         data = s11n.from_json(response.content.decode(encoding))
         self.assertEqual(data['status'], 'error')
         self.assertEqual(data['code'], code)
@@ -160,7 +160,6 @@ class TestCaseMixin(object):
             yield
         self.assertGreater(mocked.call_count, 0)
 
-
     def check_serialization(self, obj):
         obj_data = obj.serialize()
         self.assertEqual(obj_data, obj.deserialize(s11n.from_json(s11n.to_json(obj_data))).serialize())
@@ -194,6 +193,9 @@ class TestCaseMixin(object):
 
     def post_ajax_json(self, url, data=None):
         return self.client.post(url, data if data else {}, HTTP_ACCEPT='text/json', HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+
+    def post_ajax_binary(self, url, data=None):
+        return self.client.post(url, data if data else '', HTTP_ACCEPT='text/json', HTTP_X_REQUESTED_WITH='XMLHttpRequest', content_type='application/octet-stream')
 
     @make_request_decorator
     def make_request_html(self, url, meta={}):
