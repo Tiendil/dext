@@ -7,7 +7,7 @@ from django.conf import settings as project_settings
 
 class UrlBuilder(object):
 
-    def __init__(self, base, protocol='http', arguments=None):
+    def __init__(self, base, protocol='https', arguments=None):
         self.base = base
         self.default_arguments = arguments if arguments is not None else {}
         self.protocol = protocol
@@ -35,7 +35,7 @@ def url(*args, **kwargs):
 def full_url(protocol, *args, **kwargs):
     return protocol + '://' + project_settings.SITE_URL + url(*args, **kwargs)
 
-def absolute_url(relative_url, protocol='http'):
+def absolute_url(relative_url, protocol='https'):
     return protocol + '://' + project_settings.SITE_URL + relative_url
 
 
