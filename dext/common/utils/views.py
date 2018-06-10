@@ -446,6 +446,8 @@ class RelationArgumentProcessor(ArgumentProcessor):
 
         try:
             value = self.value_type(raw_value)
+        except ValueError:
+            self.raise_wrong_format()
         except TypeError:
             self.raise_wrong_format()
 

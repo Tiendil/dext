@@ -14,6 +14,10 @@ class MetaType(object):
         from . import logic
         return logic.create_uid(self.TYPE, self.id)
 
+    @property
+    def is_unknown(self):
+        return self.id is None
+
     @classmethod
     def create_from_id(cls, id):
         raise NotImplementedError()
