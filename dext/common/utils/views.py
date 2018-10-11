@@ -204,7 +204,6 @@ class Resource(object):
 
         return decorator
 
-
     def get_urls(self):
         urls = []
 
