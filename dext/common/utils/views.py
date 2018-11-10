@@ -204,7 +204,6 @@ class Resource(object):
 
         return decorator
 
-
     def get_urls(self):
         urls = []
 
@@ -237,8 +236,11 @@ class BaseViewProcessor(object):
 
         for argument_name, value in kwargs.items():
             argument = getattr(self, 'ARG_%s' % argument_name.upper())
+
             if not isinstance(argument, ProcessorArgument):
                 raise exceptions.WrongProcessorArgumentError(processor=self, argument=argument_name)
+
+            setattr(self, argument_name.lower(), value)
 
         self.initialize()
 
