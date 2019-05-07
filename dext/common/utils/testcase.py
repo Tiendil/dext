@@ -136,6 +136,12 @@ class TestCaseMixin(object):
         self.assertEqual(callback() - old_value, delta)
 
     @contextlib.contextmanager
+    def check_almost_delta(self, callback, delta):
+        old_value = callback()
+        yield
+        self.assertAlmostEqual(callback() - old_value, delta)
+
+    @contextlib.contextmanager
     def check_increased(self, callback):
         old_value = callback()
         yield
